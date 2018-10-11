@@ -1,2 +1,2 @@
 # pandas-dedupe
-Simplifies use of the Dedupe library via Pandas
+The Dedupe library made easy with Pandas.
