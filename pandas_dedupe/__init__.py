@@ -22,7 +22,7 @@ settings_file = 'csv_example_learned_settings'
 training_file = 'csv_example_training.json'
 
 
-def tcr(df, field_properties):
+def deduplicate(df, field_properties):
     # Import Data
 
     print('importing data ...')
