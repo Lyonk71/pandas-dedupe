@@ -1,13 +1,5 @@
-from __future__ import print_function
-from future.builtins import next
-
 import os
-import csv
-import re
-import collections
 import logging
-import optparse
-import numpy
 
 import dedupe
 from unidecode import unidecode
@@ -25,7 +17,7 @@ def trim(x):
 
 
 
-def deduplicate(df, field_properties):
+def dedupe_dataframe(df, field_properties):
     # Import Data
     
     settings_file = 'csv_example_learned_settings'
@@ -151,7 +143,7 @@ def deduplicate(df, field_properties):
     return df
 
 
-def link_tables(dfa, dfb, field_properties):
+def link_dataframes(dfa, dfb, field_properties):
 
     settings_file = 'data_matching_learned_settings'
     training_file = 'data_matching_training.json'
