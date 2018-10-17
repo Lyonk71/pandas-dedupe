@@ -7,6 +7,7 @@ import logging
 import optparse
 
 import dedupe
+from unidecode import unidecode
 
 import pandas as pd
 
@@ -32,6 +33,7 @@ def deduplicate(df, field_properties):
     for i in df.columns:
         df[i] = df[i].str.replace('[^\w\s]','')
     df = df.applymap(lambda x: trim(x))
+    dfa = dfa.applymap(lambda x: unidecode(x))
 
     df['dictionary'] = df.apply(lambda x: dict(zip(df.columns,x.tolist())), axis=1)
     data_d = dict(zip(df.index,df.dictionary))
