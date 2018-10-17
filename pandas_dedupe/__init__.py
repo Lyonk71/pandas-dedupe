@@ -1,10 +1,13 @@
+from __future__ import print_function
 from future.builtins import next
 
 import os
 import csv
 import re
+import collections
 import logging
 import optparse
+import numpy
 
 import dedupe
 from unidecode import unidecode
@@ -19,12 +22,14 @@ def trim(x):
     x = ' '.join(x)
     return x   
 
-settings_file = 'csv_example_learned_settings'
-training_file = 'csv_example_training.json'
+
 
 
 def deduplicate(df, field_properties):
     # Import Data
+    
+    settings_file = 'csv_example_learned_settings'
+    training_file = 'csv_example_training.json'
 
     print('importing data ...')
 
@@ -144,3 +149,134 @@ def deduplicate(df, field_properties):
     df.drop(columns=[1, 'dictionary'], inplace=True)
 
     return df
+
+
+def link_tables(dfa, dfb, field_properties):
+
+    settings_file = 'data_matching_learned_settings'
+    training_file = 'data_matching_training.json'
+    output_file = 'test.csv'
+
+    dfa = dfa.astype(str, inplace=True)
+    dfa = dfa.applymap(lambda x: x.lower())
+    for i in dfa.columns:
+        dfa[i] = dfa[i].str.replace('[^\w\s]','')
+    dfa = dfa.applymap(lambda x: trim(x))
+    dfa = dfa.applymap(lambda x: unidecode(x))
+
+    dfa['dictionary'] = dfa.apply(lambda x: dict(zip(dfa.columns,x.tolist())), axis=1)
+    data_1 = dict(zip(dfa.index,dfa.dictionary))
+
+
+
+    dfb = dfb.astype(str, inplace=True)
+    dfb = dfb.applymap(lambda x: x.lower())
+    for i in dfb.columns:
+        dfb[i] = dfb[i].str.replace('[^\w\s]','')
+    dfb = dfb.applymap(lambda x: trim(x))
+    dfb = dfb.applymap(lambda x: unidecode(x))
+
+    dfb['dictionary'] = dfb.apply(lambda x: dict(zip(dfb.columns,x.tolist())), axis=1)
+    data_2 = dict(zip(dfb.index,dfb.dictionary))
+    # ---------------------------------------------------------------------------------
+
+
+
+    # ## Training
+
+
+    if os.path.exists(settings_file):
+        print('reading from', settings_file)
+        with open(settings_file, 'rb') as sf :
+            linker = dedupe.StaticRecordLink(sf)
+
+    else:
+        # Define the fields the linker will pay attention to
+        #
+        # Notice how we are telling the linker to use a custom field comparator
+        # for the 'price' field. 
+        fields =[]
+
+        for i in field_properties:
+            if type(i)==str:
+                fields.append({'field': i, 'type': 'String'})
+            if len(i)==2:
+                fields.append({'field': i[0], 'type': i[1]})
+
+        # Create a new linker object and pass our data model to it.
+        linker = dedupe.RecordLink(fields)
+        # To train the linker, we feed it a sample of records.
+        linker.sample(data_1, data_2, 15000)
+
+        # If we have training data saved from a previous run of linker,
+        # look for it an load it in.
+        # __Note:__ if you want to train from scratch, delete the training_file
+        if os.path.exists(training_file):
+            print('reading labeled examples from ', training_file)
+            with open(training_file) as tf :
+                linker.readTraining(tf)
+
+        # ## Active learning
+        # Dedupe will find the next pair of records
+        # it is least certain about and ask you to label them as matches
+        # or not.
+        # use 'y', 'n' and 'u' keys to flag duplicates
+        # press 'f' when you are finished
+        print('starting active labeling...')
+
+        dedupe.consoleLabel(linker)
+
+        linker.train()
+
+        # When finished, save our training away to disk
+        with open(training_file, 'w') as tf :
+            linker.writeTraining(tf)
+
+        # Save our weights and predicates to disk.  If the settings file
+        # exists, we will skip all the training and learning next time we run
+        # this file.
+        with open(settings_file, 'wb') as sf :
+            linker.writeSettings(sf)
+
+
+    # ## Blocking
+
+    # ## Clustering
+
+    # Find the threshold that will maximize a weighted average of our
+    # precision and recall.  When we set the recall weight to 2, we are
+    # saying we care twice as much about recall as we do precision.
+    #
+    # If we had more data, we would not pass in all the blocked data into
+    # this function but a representative sample.
+
+    print('clustering...')
+    linked_records = linker.match(data_1, data_2, 0)
+
+    print('# duplicate sets', len(linked_records))
+
+    df_linked_records = pd.DataFrame(linked_records)
+    # I had to subract two b/c linker assumes header & also that row 1 = 1. Our dfs have no header,
+    # and start with index = 0
+    df_linked_records['dfa_link'] = df_linked_records[0].apply(lambda x: x[0] - 2)
+    df_linked_records['dfb_link'] = df_linked_records[0].apply(lambda x: x[1] - 2)
+    df_linked_records.rename(columns={1: 'confidence'}, inplace=True)
+    df_linked_records.drop(columns=[0], inplace=True)
+    df_linked_records['cluster id'] = df_linked_records.index
+
+
+    dfa.index.rename('dfa_link', inplace=True)
+    dfa = dfa.merge(df_linked_records, on='dfa_link', how='left')
+    dfa.drop(columns=['unique_id', 'dictionary', 'dfb_link'], inplace=True)
+    #dfa.rename(columns={'dfa_link': 'cluster id'}, inplace=True)
+
+
+    dfb.index.rename('dfb_link', inplace=True)
+    dfb = dfb.merge(df_linked_records, on='dfb_link', how='left')
+    dfb.drop(columns=['unique_id', 'dictionary', 'dfa_link'], inplace=True)
+    #dfb.rename(columns={'dfb_link': 'cluster id'}, inplace=True)
+
+    df_final = dfa.append(dfb, ignore_index=True)
+    df_final = df_final.sort_values(by=['cluster id'])
+
+    return df_final
