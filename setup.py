@@ -8,4 +8,9 @@ setup(name='pandas_dedupe',
       author_email='flyingcircus@example.com',
       license='MIT',
       packages=['pandas_dedupe'],
+      install_requires=[
+          'dedupe',
+          'unidecode',
+          'pandas',
+      ],
       zip_safe=False)
