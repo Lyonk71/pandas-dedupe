@@ -9,12 +9,21 @@ import pandas as pd
 
 logging.getLogger().setLevel(logging.WARNING)
 
+
 def trim(x):
     x = x.split()
     x = ' '.join(x)
     return x   
 
 
+def clean_punctuation(df):
+    df = df.astype(str, inplace=True)
+    df = df.applymap(lambda x: x.lower())
+    for i in df.columns:
+        df[i] = df[i].str.replace('[^\w\s]','')
+    df = df.applymap(lambda x: trim(x))
+    df = df.applymap(lambda x: unidecode(x))
+    return df
 
 
 def dedupe_dataframe(df, field_properties):
@@ -25,12 +34,7 @@ def dedupe_dataframe(df, field_properties):
 
     print('importing data ...')
 
-    df = df.astype(str, inplace=True)
-    df = df.applymap(lambda x: x.lower())
-    for i in df.columns:
-        df[i] = df[i].str.replace('[^\w\s]','')
-    df = df.applymap(lambda x: trim(x))
-    df = df.applymap(lambda x: unidecode(x))
+    clean_punctuation(df)
 
     df['dictionary'] = df.apply(lambda x: dict(zip(df.columns,x.tolist())), axis=1)
     data_d = dict(zip(df.index,df.dictionary))
@@ -149,24 +153,12 @@ def link_dataframes(dfa, dfb, field_properties):
     training_file = 'data_matching_training.json'
     output_file = 'test.csv'
 
-    dfa = dfa.astype(str, inplace=True)
-    dfa = dfa.applymap(lambda x: x.lower())
-    for i in dfa.columns:
-        dfa[i] = dfa[i].str.replace('[^\w\s]','')
-    dfa = dfa.applymap(lambda x: trim(x))
-    dfa = dfa.applymap(lambda x: unidecode(x))
+    clean_punctuation(dfa)
 
     dfa['dictionary'] = dfa.apply(lambda x: dict(zip(dfa.columns,x.tolist())), axis=1)
     data_1 = dict(zip(dfa.index,dfa.dictionary))
 
-
-
-    dfb = dfb.astype(str, inplace=True)
-    dfb = dfb.applymap(lambda x: x.lower())
-    for i in dfb.columns:
-        dfb[i] = dfb[i].str.replace('[^\w\s]','')
-    dfb = dfb.applymap(lambda x: trim(x))
-    dfb = dfb.applymap(lambda x: unidecode(x))
+    clean_punctuation(dfb)
 
     dfb['dictionary'] = dfb.apply(lambda x: dict(zip(dfb.columns,x.tolist())), axis=1)
     data_2 = dict(zip(dfb.index,dfb.dictionary))
