@@ -43,6 +43,11 @@ def select_fields(fields, field_properties):
             else:
                 raise Exception(i[2] + " is not a valid field property")
     
+def specify_type(df, field_properties):
+    for i in field_properties:
+        if i[1] == 'Price':
+            df[i[0]] = df[i[0]].astype(float)
+    
     
 def dedupe_dataframe(df, field_properties):
     # Import Data
@@ -53,12 +58,8 @@ def dedupe_dataframe(df, field_properties):
     print('importing data ...')
 
     df = clean_punctuation(df)
-
-    for i in field_properties:
-        if i[1] == 'Price':
-            df[i[0]] = df[i[0]].astype(float)
-
-                
+    
+    specify_type(df, field_properties)                
     
     df['dictionary'] = df.apply(lambda x: dict(zip(df.columns,x.tolist())), axis=1)
     data_d = dict(zip(df.index,df.dictionary))
@@ -175,11 +176,15 @@ def link_dataframes(dfa, dfb, field_properties):
     output_file = 'test.csv'
 
     clean_punctuation(dfa)
+    
+    specify_type(dfb, field_properties)
 
     dfa['dictionary'] = dfa.apply(lambda x: dict(zip(dfa.columns,x.tolist())), axis=1)
     data_1 = dict(zip(dfa.index,dfa.dictionary))
 
     clean_punctuation(dfb)
+    
+    specify_type(dfb, field_properties)
 
     dfb['dictionary'] = dfb.apply(lambda x: dict(zip(dfb.columns,x.tolist())), axis=1)
     data_2 = dict(zip(dfb.index,dfb.dictionary))
