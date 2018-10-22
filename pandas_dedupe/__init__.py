@@ -17,9 +17,11 @@ def trim(x):
 
 
 def clean_punctuation(df):
-    df = df.where(df.notnull(), None)
     for i in df.columns:
         df[i] = df[i].astype(str)
+    for i in df.columns:
+        df[i] = df[i].replace({'$':''}, regex=True)
+    df = df.where(df.notnull(), None) 
     df = df.applymap(lambda x: x.lower())
     for i in df.columns:
         df[i] = df[i].str.replace('[^\w\s\.]','')
@@ -27,7 +29,18 @@ def clean_punctuation(df):
     df = df.applymap(lambda x: unidecode(x))
     return df
 
+def select_fields(fields, field_properties):
+    for i in field_properties:
+        if type(i)==str:
+            fields.append({'field': i, 'type': 'String'})
+        if len(i)==2:
+            fields.append({'field': i[0], 'type': i[1]})
+        if len(i)==3:
+            fields.append({'field': i[0], 'type': i[1], 'has missing': True})
 
+
+    
+    
 def dedupe_dataframe(df, field_properties):
     # Import Data
     
@@ -36,7 +49,7 @@ def dedupe_dataframe(df, field_properties):
 
     print('importing data ...')
 
-    clean_punctuation(df)
+    df = clean_punctuation(df)
 
     df['dictionary'] = df.apply(lambda x: dict(zip(df.columns,x.tolist())), axis=1)
     data_d = dict(zip(df.index,df.dictionary))
@@ -50,13 +63,10 @@ def dedupe_dataframe(df, field_properties):
         # ## Training
 
         # Define the fields dedupe will pay attention to
-        fields =[]
+        
+        fields = []
+        select_fields(fields, field_properties)
 
-        for i in field_properties:
-            if type(i)==str:
-                fields.append({'field': i, 'type': 'String'})
-            if len(i)==2:
-                fields.append({'field': i[0], 'type': i[1]})
 
         # Create a new deduper object and pass our data model to it.
         deduper = dedupe.Dedupe(fields)
@@ -188,6 +198,8 @@ def link_dataframes(dfa, dfb, field_properties):
                 fields.append({'field': i, 'type': 'String'})
             if len(i)==2:
                 fields.append({'field': i[0], 'type': i[1]})
+            if len(i)==3:
+                fields.append({'field': i[0], 'type': i[1], 'has missing': True})
 
         # Create a new linker object and pass our data model to it.
         linker = dedupe.RecordLink(fields)
