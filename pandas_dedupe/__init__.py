@@ -36,9 +36,12 @@ def select_fields(fields, field_properties):
         if len(i)==2:
             fields.append({'field': i[0], 'type': i[1]})
         if len(i)==3:
-            fields.append({'field': i[0], 'type': i[1], 'has missing': True})
-
-
+            if i[2] == 'has missing':
+                fields.append({'field': i[0], 'type': i[1], 'has missing': True})
+            elif i[2] == 'crf':
+                fields.append({'field': i[0], 'type': i[1], 'crf': True})
+            else:
+                raise Exception(i[2] + " is not a valid field property")
     
     
 def dedupe_dataframe(df, field_properties):
@@ -51,9 +54,15 @@ def dedupe_dataframe(df, field_properties):
 
     df = clean_punctuation(df)
 
+    for i in field_properties:
+        if i[1] == 'Price':
+            df[i[0]] = df[i[0]].astype(float)
+
+                
+    
     df['dictionary'] = df.apply(lambda x: dict(zip(df.columns,x.tolist())), axis=1)
     data_d = dict(zip(df.index,df.dictionary))
-
+    
     # If a settings file already exists, we'll just load that and skip training
     if os.path.exists(settings_file):
         print('reading from', settings_file)
