@@ -171,24 +171,31 @@ def dedupe_dataframe(df, field_properties):
 
 
 def link_dataframes(dfa, dfb, field_properties):
-
+    
     settings_file = 'data_matching_learned_settings'
     training_file = 'data_matching_training.json'
-    output_file = 'test.csv'
+ 
+    print('importing data ...')
 
-    clean_punctuation(dfa)
+    dfa = clean_punctuation(dfa)
+    specify_type(dfa, field_properties)
     
+    dfa['index_field'] = dfa.index
+    dfa['index_field'] = dfa['index_field'].apply(lambda x: "dfa" + str(x))
+    dfa.set_index(['index_field'], inplace=True)
+            
+    data_1 = dfa.to_dict(orient='index')
+   
+
+    dfb = clean_punctuation(dfb)
     specify_type(dfb, field_properties)
-
-    dfa['dictionary'] = dfa.apply(lambda x: dict(zip(dfa.columns,x.tolist())), axis=1)
-    data_1 = dict(zip(dfa.index,dfa.dictionary))
-
-    clean_punctuation(dfb)
     
-    specify_type(dfb, field_properties)
+    dfb['index_field'] = dfb.index
+    dfb['index_field'] = dfb['index_field'].apply(lambda x: "dfb" + str(x))
+    dfb.set_index(['index_field'], inplace=True)
 
-    dfb['dictionary'] = dfb.apply(lambda x: dict(zip(dfb.columns,x.tolist())), axis=1)
-    data_2 = dict(zip(dfb.index,dfb.dictionary))
+    
+    data_2 = dfb.to_dict(orient='index')
     # ---------------------------------------------------------------------------------
 
 
@@ -215,7 +222,9 @@ def link_dataframes(dfa, dfb, field_properties):
                 fields.append({'field': i[0], 'type': i[1]})
             if len(i)==3:
                 fields.append({'field': i[0], 'type': i[1], 'has missing': True})
-
+                
+              
+                
         # Create a new linker object and pass our data model to it.
         linker = dedupe.RecordLink(fields)
         # To train the linker, we feed it a sample of records.
@@ -238,7 +247,6 @@ def link_dataframes(dfa, dfb, field_properties):
         print('starting active labeling...')
 
         dedupe.consoleLabel(linker)
-
         linker.train()
 
         # When finished, save our training away to disk
@@ -267,29 +275,28 @@ def link_dataframes(dfa, dfb, field_properties):
     linked_records = linker.match(data_1, data_2, 0)
 
     print('# duplicate sets', len(linked_records))
+    
 
+    #Convert linked records into dataframe
     df_linked_records = pd.DataFrame(linked_records)
-    # I had to subract two b/c linker assumes header & also that row 1 = 1. Our dfs have no header,
-    # and start with index = 0
-    df_linked_records['dfa_link'] = df_linked_records[0].apply(lambda x: x[0] - 2)
-    df_linked_records['dfb_link'] = df_linked_records[0].apply(lambda x: x[1] - 2)
+    
+    df_linked_records['dfa_link'] = df_linked_records[0].apply(lambda x: x[0])
+    df_linked_records['dfb_link'] = df_linked_records[0].apply(lambda x: x[1])
     df_linked_records.rename(columns={1: 'confidence'}, inplace=True)
     df_linked_records.drop(columns=[0], inplace=True)
     df_linked_records['cluster id'] = df_linked_records.index
 
-
+   
+    #For both dfa & dfb, add cluster id & confidence score from liked_records
     dfa.index.rename('dfa_link', inplace=True)
     dfa = dfa.merge(df_linked_records, on='dfa_link', how='left')
-    dfa.drop(columns=['unique_id', 'dictionary', 'dfb_link'], inplace=True)
-    #dfa.rename(columns={'dfa_link': 'cluster id'}, inplace=True)
-
 
     dfb.index.rename('dfb_link', inplace=True)
     dfb = dfb.merge(df_linked_records, on='dfb_link', how='left')
-    dfb.drop(columns=['unique_id', 'dictionary', 'dfa_link'], inplace=True)
-    #dfb.rename(columns={'dfb_link': 'cluster id'}, inplace=True)
 
-    df_final = dfa.append(dfb, ignore_index=True)
+    #Concatenate results from dfa + dfb
+    df_final = dfa.append(dfb, ignore_index=True, sort=True)
     df_final = df_final.sort_values(by=['cluster id'])
+    df_final = df_final.drop(columns=['dfa_link','dfb_link'])
 
     return df_final
