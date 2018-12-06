@@ -19,6 +19,7 @@ The Dedupe library made easy with Pandas.
     #send output to csv
     df_final.to_csv('deduplication_output.csv')
     
+    #------------------------------additional details------------------------------
 
     #A training file and a settings file will be created while running Dedupe. 
     #Keeping these files will eliminate the need to retrain your model in the future. 
@@ -39,6 +40,7 @@ The Dedupe library made easy with Pandas.
     #send output to csv
     df_final.to_csv('linkage_output.csv')
     
+    #------------------------------additional details------------------------------
     
     #Record linkage should only be used on dataframes that have been deduplicated
     
