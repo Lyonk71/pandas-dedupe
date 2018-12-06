@@ -1,11 +1,11 @@
 # pandas-dedupe
 The Dedupe library made easy with Pandas.
 
-#Installation
+# Installation
 
-#Usage
+# Usage
 
-###Basic Deduplication
+### Basic Deduplication
 
 '''
 
@@ -25,4 +25,4 @@ df_final.to_csv('test_output.csv')
 
 *A training file and a settings file will be created while running Dedupe. Keeping these files will elinate the need to retrain your model in the future. If you would like to retrain your model, just delete the settings and training files.
 
-#Credits
+# Credits
