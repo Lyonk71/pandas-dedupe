@@ -36,7 +36,7 @@ The Dedupe library made easy with Pandas.
     dfb = pd.read_csv('file_b.csv')
     
     #initiate matching
-    df_final = pandas_dedupe.link_dataframes(dfa, dfb, ['field_1', 'field_2', 'field_3', 'field_4])
+    df_final = pandas_dedupe.link_dataframes(dfa, dfb, ['field_1', 'field_2', 'field_3', 'field_4'])
 
     #send output to csv
     df_final.to_csv('linkage_output.csv')
@@ -54,3 +54,5 @@ The Dedupe library made easy with Pandas.
 
 
 # Credits
+
+
