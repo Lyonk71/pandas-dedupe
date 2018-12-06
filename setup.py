@@ -2,10 +2,10 @@ from setuptools import setup
 
 setup(name='pandas_dedupe',
       version='0.1',
-      description='An easier way to use usaddress',
+      description='The Dedupe library made easy with Pandas.',
       # url='http://github.com/storborg/funniest',
       author='Keith Lyons',
-      author_email='flyingcircus@example.com',
+      author_email='lyonk71@gmail.com',
       license='MIT',
       packages=['pandas_dedupe'],
       install_requires=[
