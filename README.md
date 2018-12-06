@@ -44,8 +44,10 @@ The Dedupe library made easy with Pandas.
     
     #------------------------------additional details------------------------------
     
-    #Record linkage should only be used on dataframes that have been deduplicated
+    #Use identical field names when linking dataframes.
     
+    #Record linkage should only be used on dataframes that have been deduplicated.
+       
     #A training file and a settings file will be created while running Dedupe. 
     #Keeping these files will eliminate the need to retrain your model in the future. 
     #If you would like to retrain your model, just delete the settings and training files.
