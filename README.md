@@ -3,6 +3,8 @@ The Dedupe library made easy with Pandas.
 
 # Installation
 
+pip install pandas-dedupe
+
 # Usage
 
 ### Basic Deduplication
