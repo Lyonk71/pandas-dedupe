@@ -55,4 +55,5 @@ The Dedupe library made easy with Pandas.
 
 # Credits
 
+Many thanks to folks at [DataMade](https://datamade.us/) for making the the [Dedupe library](https://github.com/dedupeio/dedupe) publicly available. People interested in a code-free implementation of the dedupe library can find a link here: [Dedupe.io](https://dedupe.io/pricing/).
 
