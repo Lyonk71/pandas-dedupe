@@ -5,6 +5,10 @@ The Dedupe library made easy with Pandas.
 
 pip install pandas-dedupe
 
+# Video Tutorials
+
+[Basic Deduplication](https://www.youtube.com/watch?v=lCFEzRaqoJA)
+
 # Usage
 
 ### Basic Deduplication
