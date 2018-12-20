@@ -13,11 +13,13 @@ logging.getLogger().setLevel(logging.WARNING)
 
     
     
-def dedupe_dataframe(df, field_properties):
+def dedupe_dataframe(df, field_properties, config_name="dedupe_dataframe"):
     # Import Data
     
-    settings_file = 'csv_example_learned_settings'
-    training_file = 'csv_example_training.json'
+    config_name = config_name.replace(" ", "_")
+    
+    settings_file = config_name + '_learned_settings'
+    training_file = config_name + '_training.json'
 
     print('importing data ...')
 

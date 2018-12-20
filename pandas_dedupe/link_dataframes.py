@@ -11,10 +11,12 @@ import pandas as pd
 
 
 
-def link_dataframes(dfa, dfb, field_properties):
+def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
     
-    settings_file = 'data_matching_learned_settings'
-    training_file = 'data_matching_training.json'
+    config_name = config_name.replace(" ", "_")
+    
+    settings_file = config_name + '_learned_settings'
+    training_file = config_name + '_training.json'
  
     print('importing data ...')
 
