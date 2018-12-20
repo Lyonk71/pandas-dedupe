@@ -13,7 +13,7 @@ logging.getLogger().setLevel(logging.WARNING)
 
     
     
-def dedupe_dataframe(df, field_properties, config_name="dedupe_dataframe"):
+def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="dedupe_dataframe"):
     # Import Data
     
     config_name = config_name.replace(" ", "_")
@@ -116,13 +116,24 @@ def dedupe_dataframe(df, field_properties, config_name="dedupe_dataframe"):
     dfa = pd.DataFrame(cluster_index)
 
     dfa.rename(columns={0: 'Id'}, inplace=True)
-
+    
     dfa['cluster id'] = dfa[1].apply(lambda x: x["cluster id"])
     dfa['confidence'] = dfa[1].apply(lambda x: x["confidence"])
 
-    for i in dfa[1][0]['canonical representation'].keys():
-        dfa[i + ' - ' + 'canonical'] = None
-        dfa[i + ' - ' + 'canonical'] = dfa[1].apply(lambda x: x['canonical representation'][i])
+    canonical_list=[]
+    
+    if canonical=='show_all' or canonical=='update_all':
+        for i in dfa[1][0]['canonical representation'].keys():
+            canonical_list.append(i)
+            dfa[i + ' - ' + 'canonical'] = None
+            dfa[i + ' - ' + 'canonical'] = dfa[1].apply(lambda x: x['canonical representation'][i])
+    elif canonical == 'show_none':
+        pass            
+    elif type(canonical) == list:
+        for i in canonical:
+            dfa[i + ' - ' + 'canonical'] = None
+            dfa[i + ' - ' + 'canonical'] = dfa[1].apply(lambda x: x['canonical representation'][i])
+
 
 
 
@@ -130,6 +141,16 @@ def dedupe_dataframe(df, field_properties, config_name="dedupe_dataframe"):
 
     df = df.join(dfa)
 
+    if canonical=='update_all':
+        for i in canonical_list:
+            df[i] = df[i + ' - ' + 'canonical'].combine_first(df[i])
+            df = df.drop(columns=[i + ' - ' + 'canonical'])    
+    elif type(canonical)==list:
+        for i in canonical:
+            df[i] = df[i + ' - ' + 'canonical'].combine_first(df[i])
+            df = df.drop(columns=[i + ' - ' + 'canonical'])
+            
     df.drop(columns=[1, 'dictionary'], inplace=True)
+        
 
     return df
