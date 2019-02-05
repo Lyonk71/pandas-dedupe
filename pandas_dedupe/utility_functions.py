@@ -46,6 +46,7 @@ def latlong_datatype(x):
             k = float(k)
             v = float(v)
             z = (k,v)
+            return z
         except:
             raise Exception("Make sure that LatLong columns are tuples arranged like ('lat', 'lon')")
             
