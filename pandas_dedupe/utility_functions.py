@@ -52,12 +52,13 @@ def latlong_datatype(x):
             
 def specify_type(df, field_properties):
     for i in field_properties:
-        if i[1] == 'Price':
+        if i[1] == 'LatLong':
+            df[i[0]] = df[i[0]].apply(lambda x: latlong_datatype(x))
+        elif i[1] == 'Price':
             try:
                 df[i[0]] = df[i[0]].replace({None: np.nan})
                 df[i[0]] = df[i[0]].astype(float)
                 df[i[0]] = df[i[0]].replace({np.nan: None})
             except:
-                raise Exception('Make sure that Price columns can be converted to float.'
-        elif i[1] == 'LatLong':
-            df[i[0]] = df[i[0]].apply(lambda x: latlong_datatype(x)) 
+                raise Exception('Make sure that Price columns can be converted to float.')
+ 
