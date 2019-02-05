@@ -1,5 +1,7 @@
 from unidecode import unidecode
 import pandas as pd
+import numpy as np
+from ast import literal_eval
 
 def trim(x):
     x = x.split()
@@ -34,6 +36,20 @@ def select_fields(fields, field_properties):
                 raise Exception(i[2] + " is not a valid field property")
                 
     
+def latlong_datatype(x):
+    if x == None:
+        return None
+    else:
+        try:
+            x = literal_eval(x)
+            k,v = x
+            k = float(k)
+            v = float(v)
+            z = (k,v)
+        except:
+            raise Exception("Make sure that LatLong columns are tuples arranged like ('lat', 'lon')")
+            
+            
 def specify_type(df, field_properties):
     for i in field_properties:
         if i[1] == 'Price':
@@ -42,5 +58,6 @@ def specify_type(df, field_properties):
                 df[i[0]] = df[i[0]].astype(float)
                 df[i[0]] = df[i[0]].replace({np.nan: None})
             except:
-                raise Exception('The column', i[0], "is listed as a 'Price'. That " \
-                "column has values that cannot be converted to type float")
+                raise Exception('Make sure that Price columns can be converted to float.'
+        elif i[1] == 'LatLong':
+            df[i[0]] = df[i[0]].apply(lambda x: latlong_datatype(x)) 
