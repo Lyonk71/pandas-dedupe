@@ -32,8 +32,15 @@ def select_fields(fields, field_properties):
                 fields.append({'field': i[0], 'type': i[1], 'crf': True})
             else:
                 raise Exception(i[2] + " is not a valid field property")
+                
     
 def specify_type(df, field_properties):
     for i in field_properties:
         if i[1] == 'Price':
-            df[i[0]] = df[i[0]].astype(float)
+            try:
+                df[i[0]] = df[i[0]].replace({None: np.nan})
+                df[i[0]] = df[i[0]].astype(float)
+                df[i[0]] = df[i[0]].replace({np.nan: None})
+            except:
+                raise Exception('The column', i[0], "is listed as a 'Price'. That " \
+                "column has values that cannot be converted to type float")
