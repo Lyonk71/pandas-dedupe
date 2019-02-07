@@ -96,7 +96,7 @@ Dedupe supports a variety of datatypes; a full listing with documentation can be
 pandas-dedupe officially supports the following datatypes:
 * String - Standard string comparison using string distance metric. This is the default type.
 * Text - Comparison for sentences or paragraphs of text. Uses cosine similarity metric.
-* LatLong - (39.990334, 70.012) is not similar to (40.01, 69.98) using a string distance
+* LatLong - (39.990334, 70.012) will not match to (40.01, 69.98) using a string distance
 metric, even though the points are in a geographically similar location. The LatLong type resolves
  this by calculating the haversine distance between compared coordinates. LatLong requires
  the field to be in the format (Lat, Lng). The value can be a string, a tuple containing two
