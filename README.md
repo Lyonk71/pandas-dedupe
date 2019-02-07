@@ -103,7 +103,8 @@ metric, even though the points are in a geographically similar location. The Lat
  strings, a tuple containing two floats, or a tuple containing two integers. If the format
  is not able to be processed, you will get a traceback.
 * Exact - Tests wheter fields are an exact match.
-* Exists - Tests for whether both, one, or neither of fields are null.
+* Exists - Sometimes, the presence or absence of data can be useful in predicting a match.
+The Exists type tests for whether both, one, or neither of fields are null.
 
 Additional supported parameters are:
 * has missing - Can be used if one of your data fields contains null values
