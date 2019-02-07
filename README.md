@@ -9,9 +9,9 @@ pip install pandas-dedupe
 
 [Basic Deduplication](https://www.youtube.com/watch?v=lCFEzRaqoJA)
 
-# Usage
+# Basic Usage
 
-### Basic Deduplication
+### Deduplication
 
     import pandas as pd
     import pandas_dedupe
@@ -32,7 +32,7 @@ pip install pandas-dedupe
     #Keeping these files will eliminate the need to retrain your model in the future. 
     #If you would like to retrain your model, just delete the settings and training files.
 
-### Basic Matching / Record Linkage
+### Matching / Record Linkage
 
     import pandas as pd
     import pandas_dedupe
@@ -58,23 +58,25 @@ pip install pandas-dedupe
     #Keeping these files will eliminate the need to retrain your model in the future. 
     #If you would like to retrain your model, just delete the settings and training files.
     
-### Type Usage
+# Advanced Usage
+    
+### Specifying Types
 
     # Example 1
 
-    df_final = pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', ('salary', 'Price')])
+    pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', ('salary', 'Price')])
     
     # Example 2
 
-    df_final = pandas_dedupe.dedupe_dataframe(df,[('first_name', 'String'), 'last_name', (m_initial, 'Exact')])
+    pandas_dedupe.dedupe_dataframe(df,[('first_name', 'String'), 'last_name', (m_initial, 'Exact')])
     
     # has missing Example
 
-    df_final = pandas_dedupe.link_dataframes(df,['SSN', ('employee_bio', 'Text'), ('salary', 'Price', 'has missing')])
+    pandas_dedupe.link_dataframes(df,['SSN', ('bio_pgraph', 'Text'), ('salary', 'Price', 'has missing')])
     
     # crf Example
     
-    df_final = pandas_dedupe.dedupe_dataframe(df,[('first_name', 'String', 'crf'), 'last_name', (m_initial, 'Exact')])
+    pandas_dedupe.dedupe_dataframe(df,[('first_name', 'String', 'crf'), 'last_name', (m_initial, 'Exact')])
     
     
     #------------------------------additional details------------------------------
