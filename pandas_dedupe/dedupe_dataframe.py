@@ -13,7 +13,7 @@ logging.getLogger().setLevel(logging.WARNING)
 
     
     
-def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="dedupe_dataframe"):
+def dedupe_dataframe(df, field_properties, config_name="dedupe_dataframe"):
     # Import Data
     
     config_name = config_name.replace(" ", "_")
@@ -98,11 +98,9 @@ def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="de
     for (cluster_id, cluster) in enumerate(clustered_dupes):
         id_set, scores = cluster
         cluster_d = [data_d[c] for c in id_set]
-        canonical_rep = dedupe.canonicalize(cluster_d)
         for record_id, score in zip(id_set, scores):
             cluster_membership[record_id] = {
                 "cluster id" : cluster_id,
-                "canonical representation" : canonical_rep,
                 "confidence": score
             }
 
@@ -120,35 +118,10 @@ def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="de
     dfa['cluster id'] = dfa[1].apply(lambda x: x["cluster id"])
     dfa['confidence'] = dfa[1].apply(lambda x: x["confidence"])
 
-    canonical_list=[]
-    
-    if canonical=='show_all' or canonical=='update_all':
-        for i in dfa[1][0]['canonical representation'].keys():
-            canonical_list.append(i)
-            dfa[i + ' - ' + 'canonical'] = None
-            dfa[i + ' - ' + 'canonical'] = dfa[1].apply(lambda x: x['canonical representation'][i])
-    elif canonical == 'show_none':
-        pass            
-    elif type(canonical) == list:
-        for i in canonical:
-            dfa[i + ' - ' + 'canonical'] = None
-            dfa[i + ' - ' + 'canonical'] = dfa[1].apply(lambda x: x['canonical representation'][i])
-
-
-
 
     dfa.set_index('Id', inplace=True)
 
     df = df.join(dfa)
-
-    if canonical=='update_all':
-        for i in canonical_list:
-            df[i] = df[i + ' - ' + 'canonical'].combine_first(df[i])
-            df = df.drop(columns=[i + ' - ' + 'canonical'])    
-    elif type(canonical)==list:
-        for i in canonical:
-            df[i] = df[i + ' - ' + 'canonical'].combine_first(df[i])
-            df = df.drop(columns=[i + ' - ' + 'canonical'])
             
     df.drop(columns=[1, 'dictionary'], inplace=True)
         
