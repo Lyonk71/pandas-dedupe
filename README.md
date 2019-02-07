@@ -57,7 +57,56 @@ pip install pandas-dedupe
     #A training file and a settings file will be created while running Dedupe. 
     #Keeping these files will eliminate the need to retrain your model in the future. 
     #If you would like to retrain your model, just delete the settings and training files.
+    
+### Type Usage
 
+    # Example 1
+
+    df_final = pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', ('salary', 'Price')])
+    
+    # Example 2
+
+    df_final = pandas_dedupe.dedupe_dataframe(df,[('first_name', 'String'), 'last_name', (m_initial, 'Exact')])
+    
+    # has missing Example
+
+    df_final = pandas_dedupe.link_dataframes(df,['SSN', ('employee_bio', 'Text'), ('salary', 'Price', 'has missing')])
+    
+    # crf Example
+    
+    df_final = pandas_dedupe.dedupe_dataframe(df,[('first_name', 'String', 'crf'), 'last_name', (m_initial, 'Exact')])
+    
+    
+    #------------------------------additional details------------------------------
+    
+    #If a type is not explicity listed, String will be used.
+    
+    #Tuple (parenthesis) is required to declare all other types. If you prefer use tuple
+    #for string also, ('first_name', 'String'), that's fine.
+    
+    #If you want to specify either a 'crf' or 'has missing' parameter, a tuple with three elements
+    #must be used. ('first_name', 'String', 'crf') works, ('first_name', 'crf') does not work.
+        
+# Types
+
+Dedupe supports a variety of datatypes; a full listing with documentation can be found [here.](https://docs.dedupe.io/en/latest/Variable-definition.html#)
+
+pandas-dedupe officially supports the following datatypes:
+* String - Standard string comparison using string distance metric. This is the default type.
+* Text - Comparison for sentences or paragraphs of text. Uses cosine similarity metric.
+* LatLong - (39.990334, 70.012) is not similar to (40.01, 69.98) using a string distance
+metric, even though the points are in a geographically similar location. The LatLong type resolves
+ this by calculating the haversine distance between compared coordinates. LatLong requires
+ the field to be in the format (Lat, Lng). The value can be a string, a tuple containing two
+ strings, a tuple containing two floats, or a tuple containing two integers. If the format
+ is not able to be processed, you will get a traceback.
+* Exact - Tests wheter fields are an exact match.
+* Exists - Tests for whether both, one, or neither of fields are null.
+
+Additional supported parameters are:
+* has missing - Can be used if one of your data fields contains null values
+* crf - Use conditional random fields for comparisons rather than distance metric. May be more
+accurate in some cases, but runs much slower. Works with String and ShortString types.
 
 # Credits
 
