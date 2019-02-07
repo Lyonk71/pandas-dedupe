@@ -13,7 +13,7 @@ logging.getLogger().setLevel(logging.WARNING)
 
     
     
-def dedupe_dataframe(df, field_properties, config_name="dedupe_dataframe"):
+def dedupe_dataframe(df, field_properties, confidence_threshold=.2 ,config_name="dedupe_dataframe"):
     # Import Data
     
     config_name = config_name.replace(" ", "_")
@@ -77,14 +77,10 @@ def dedupe_dataframe(df, field_properties, config_name="dedupe_dataframe"):
         with open(settings_file, 'wb') as sf:
             deduper.writeSettings(sf)
 
-    # ## Set threshold
-
-    threshold = deduper.threshold(data_d, recall_weight=1)
-
     # ## Clustering
 
     print('clustering...')
-    clustered_dupes = deduper.match(data_d, threshold)
+    clustered_dupes = deduper.match(data_d, confidence_threshold)
 
     print('# duplicate sets', len(clustered_dupes))
 

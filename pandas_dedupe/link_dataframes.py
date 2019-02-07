@@ -11,7 +11,7 @@ import pandas as pd
 
 
 
-def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
+def link_dataframes(dfa, dfb, field_properties, confidence_threshold=.2 , config_name="link_dataframes"):
     
     config_name = config_name.replace(" ", "_")
     
@@ -109,7 +109,7 @@ def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
     # this function but a representative sample.
 
     print('clustering...')
-    linked_records = linker.match(data_1, data_2, 0)
+    linked_records = linker.match(data_1, data_2, confidence_threshold)
 
     print('# duplicate sets', len(linked_records))
     
