@@ -59,23 +59,44 @@ pip install pandas-dedupe
     #If you would like to retrain your model, just delete the settings and training files.
     
 # Advanced Usage
+
+### Set Confidence Threshold
+
+    pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'middle_initial'], confidence_threshold=.3)
     
+    #------------------------------additional details------------------------------
+    
+    #The default confidence_threshold is .2.
+    
+    #The maximum value needed by at least one score in a cluster for the cluster to
+    #be recorded. For instance, with a cluster threshold of .3, the cluster below 
+    #would be kept:
+    
+    #| name      | confidence | cluster id |
+    #|-----------|------------|------------|
+    #| John      | .7         | 0          |
+    #| Johnny    | .6         | 0          |
+    #| Johnathon | .4         | 0          |
+    
+    #In the same case, the cluster below would not be recognized:
+    
+    #| name      | confidence | cluster id |
+    #|-----------|------------|------------|
+    #| Ringo     | .2         |            |
+    #| Ronald    | .2         |            |
+
 ### Specifying Types
 
     # Example 1
-
     pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', ('salary', 'Price')])
     
     # Example 2
-
     pandas_dedupe.dedupe_dataframe(df,[('first_name', 'String'), 'last_name', (m_initial, 'Exact')])
     
     # has missing Example
-
     pandas_dedupe.link_dataframes(df,['SSN', ('bio_pgraph', 'Text'), ('salary', 'Price', 'has missing')])
     
     # crf Example
-    
     pandas_dedupe.dedupe_dataframe(df,[('first_name', 'String', 'crf'), 'last_name', (m_initial, 'Exact')])
     
     
