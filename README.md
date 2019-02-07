@@ -87,12 +87,9 @@ pip install pandas-dedupe
 
 ### Specifying Types
 
-    # Example 1
+    # Price Example
     pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', ('salary', 'Price')])
-    
-    # Example 2
-    pandas_dedupe.dedupe_dataframe(df,[('first_name', 'String'), 'last_name', (m_initial, 'Exact')])
-    
+       
     # has missing Example
     pandas_dedupe.link_dataframes(df,['SSN', ('bio_pgraph', 'Text'), ('salary', 'Price', 'has missing')])
     
