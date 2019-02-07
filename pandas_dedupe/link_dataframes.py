@@ -56,15 +56,9 @@ def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
         #
         # Notice how we are telling the linker to use a custom field comparator
         # for the 'price' field. 
-        fields =[]
 
-        for i in field_properties:
-            if type(i)==str:
-                fields.append({'field': i, 'type': 'String'})
-            if len(i)==2:
-                fields.append({'field': i[0], 'type': i[1]})
-            if len(i)==3:
-                fields.append({'field': i[0], 'type': i[1], 'has missing': True})
+        fields = []
+        select_fields(fields, field_properties)
                 
               
                 
