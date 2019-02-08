@@ -13,7 +13,7 @@ logging.getLogger().setLevel(logging.WARNING)
 
     
     
-def dedupe_dataframe(df, field_properties, confidence_threshold=.2 ,config_name="dedupe_dataframe"):
+def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="dedupe_dataframe"):
     # Import Data
     
     config_name = config_name.replace(" ", "_")
@@ -77,26 +77,39 @@ def dedupe_dataframe(df, field_properties, confidence_threshold=.2 ,config_name=
         with open(settings_file, 'wb') as sf:
             deduper.writeSettings(sf)
 
+    # ## Set threshold
+
+    threshold = deduper.threshold(data_d, recall_weight=1)
+
     # ## Clustering
 
     print('clustering...')
-    clustered_dupes = deduper.match(data_d, confidence_threshold)
+    clustered_dupes = deduper.match(data_d, threshold)
 
     print('# duplicate sets', len(clustered_dupes))
 
+    
+    # Convert data_d to string so that Price & LatLong won't get traceback during dedupe.canonicalize()
+    
+    for i in data_d.values():
+    for key in i:
+        if i[key] == None:
+            pass
+        else:
+            i[key] = str(i[key])
+            
     # ## Writing Results
-
-    # turn results into dataframe
-
 
     cluster_membership = {}
     cluster_id = 0
     for (cluster_id, cluster) in enumerate(clustered_dupes):
         id_set, scores = cluster
         cluster_d = [data_d[c] for c in id_set]
+        canonical_rep = dedupe.canonicalize(cluster_d)
         for record_id, score in zip(id_set, scores):
             cluster_membership[record_id] = {
                 "cluster id" : cluster_id,
+                "canonical representation" : canonical_rep,
                 "confidence": score
             }
 
@@ -106,6 +119,8 @@ def dedupe_dataframe(df, field_properties, confidence_threshold=.2 ,config_name=
     for i in cluster_membership.items():
         cluster_index.append(i)
 
+        
+    # turn results into dataframe
 
     dfa = pd.DataFrame(cluster_index)
 
@@ -114,10 +129,35 @@ def dedupe_dataframe(df, field_properties, confidence_threshold=.2 ,config_name=
     dfa['cluster id'] = dfa[1].apply(lambda x: x["cluster id"])
     dfa['confidence'] = dfa[1].apply(lambda x: x["confidence"])
 
+    canonical_list=[]
+    
+    if canonical=='show_all' or canonical=='update_all':
+        for i in dfa[1][0]['canonical representation'].keys():
+            canonical_list.append(i)
+            dfa[i + ' - ' + 'canonical'] = None
+            dfa[i + ' - ' + 'canonical'] = dfa[1].apply(lambda x: x['canonical representation'][i])
+    elif canonical == 'show_none':
+        pass            
+    elif type(canonical) == list:
+        for i in canonical:
+            dfa[i + ' - ' + 'canonical'] = None
+            dfa[i + ' - ' + 'canonical'] = dfa[1].apply(lambda x: x['canonical representation'][i])
+
+
+
 
     dfa.set_index('Id', inplace=True)
 
     df = df.join(dfa)
+
+    if canonical=='update_all':
+        for i in canonical_list:
+            df[i] = df[i + ' - ' + 'canonical'].combine_first(df[i])
+            df = df.drop(columns=[i + ' - ' + 'canonical'])    
+    elif type(canonical)==list:
+        for i in canonical:
+            df[i] = df[i + ' - ' + 'canonical'].combine_first(df[i])
+            df = df.drop(columns=[i + ' - ' + 'canonical'])
             
     df.drop(columns=[1, 'dictionary'], inplace=True)
         
