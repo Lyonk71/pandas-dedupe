@@ -92,11 +92,11 @@ def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="de
     # Convert data_d to string so that Price & LatLong won't get traceback during dedupe.canonicalize()
     
     for i in data_d.values():
-    for key in i:
-        if i[key] == None:
-            pass
-        else:
-            i[key] = str(i[key])
+        for key in i:
+            if i[key] == None:
+                pass
+            else:
+                i[key] = str(i[key])
             
     # ## Writing Results
 
