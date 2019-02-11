@@ -112,23 +112,23 @@ pip install pandas-dedupe
 Dedupe supports a variety of datatypes; a full listing with documentation can be found [here.](https://docs.dedupe.io/en/latest/Variable-definition.html#)
 
 pandas-dedupe officially supports the following datatypes:
-* String - Standard string comparison using string distance metric. This is the default type.
-* Text - Comparison for sentences or paragraphs of text. Uses cosine similarity metric.
-* Price - For comparing positive, non zero numerical values.
-* DateTime - For comparing dates.
-* LatLong - (39.990334, 70.012) will not match to (40.01, 69.98) using a string distance
+* **String** - Standard string comparison using string distance metric. This is the default type.
+* **Text** - Comparison for sentences or paragraphs of text. Uses cosine similarity metric.
+* **Price** - For comparing positive, non zero numerical values.
+* **DateTime** - For comparing dates.
+* **LatLong** - (39.990334, 70.012) will not match to (40.01, 69.98) using a string distance
 metric, even though the points are in a geographically similar location. The LatLong type resolves
  this by calculating the haversine distance between compared coordinates. LatLong requires
  the field to be in the format (Lat, Lng). The value can be a string, a tuple containing two
  strings, a tuple containing two floats, or a tuple containing two integers. If the format
  is not able to be processed, you will get a traceback.
-* Exact - Tests wheter fields are an exact match.
-* Exists - Sometimes, the presence or absence of data can be useful in predicting a match.
+* **Exact** - Tests wheter fields are an exact match.
+* **Exists** - Sometimes, the presence or absence of data can be useful in predicting a match.
 The Exists type tests for whether both, one, or neither of fields are null.
 
 Additional supported parameters are:
-* has missing - Can be used if one of your data fields contains null values
-* crf - Use conditional random fields for comparisons rather than distance metric. May be more
+* **has missing** - Can be used if one of your data fields contains null values
+* **crf** - Use conditional random fields for comparisons rather than distance metric. May be more
 accurate in some cases, but runs much slower. Works with String and ShortString types.
 
 # Credits
