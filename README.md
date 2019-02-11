@@ -78,7 +78,7 @@ pip install pandas-dedupe
     #| Johnny    | .6         | 0          |
     #| Johnathon | .4         | 0          |
     
-    #In the same case, the cluster below would not be recognized:
+    #In the same case, the following cluster would not be recognized:
     
     #| name      | confidence | cluster id |
     #|-----------|------------|------------|
@@ -114,6 +114,8 @@ Dedupe supports a variety of datatypes; a full listing with documentation can be
 pandas-dedupe officially supports the following datatypes:
 * String - Standard string comparison using string distance metric. This is the default type.
 * Text - Comparison for sentences or paragraphs of text. Uses cosine similarity metric.
+* Price - For comparing positive, non zero numerical values.
+* DateTime - For comparing dates.
 * LatLong - (39.990334, 70.012) will not match to (40.01, 69.98) using a string distance
 metric, even though the points are in a geographically similar location. The LatLong type resolves
  this by calculating the haversine distance between compared coordinates. LatLong requires
