@@ -57,6 +57,7 @@ def specify_type(df, field_properties):
             df[i[0]] = df[i[0]].apply(lambda x: latlong_datatype(x))
         elif i[1] == 'Price':
             try:
+                df[i[0]] = df[i[0]].str.replace(",","")
                 df[i[0]] = df[i[0]].replace({None: np.nan})
                 df[i[0]] = df[i[0]].astype(float)
                 df[i[0]] = df[i[0]].replace({np.nan: None})
