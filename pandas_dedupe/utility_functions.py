@@ -18,7 +18,7 @@ def clean_punctuation(df):
     df = df.applymap(lambda x: trim(x))
     df = df.applymap(lambda x: unidecode(x))
     for i in df.columns:
-        df[i] = df[i].replace({'nan': None, 'none': None})
+        df[i] = df[i].replace({'nan': None, 'none': None, 'nat': None})
     return df
 
 def select_fields(fields, field_properties):
