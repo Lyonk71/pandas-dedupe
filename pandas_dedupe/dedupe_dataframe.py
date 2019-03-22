@@ -13,7 +13,7 @@ logging.getLogger().setLevel(logging.WARNING)
 
     
     
-def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="dedupe_dataframe", confidence_threshold=.2):
+def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="dedupe_dataframe", threshold=.2):
     # Import Data
     
     config_name = config_name.replace(" ", "_")
@@ -84,7 +84,7 @@ def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="de
     # ## Clustering
 
     print('clustering...')
-    clustered_dupes = deduper.match(data_d, confidence_threshold)
+    clustered_dupes = deduper.match(data_d, threshold)
 
     print('# duplicate sets', len(clustered_dupes))
 
