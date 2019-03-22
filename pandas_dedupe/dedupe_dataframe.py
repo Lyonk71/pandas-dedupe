@@ -13,7 +13,7 @@ logging.getLogger().setLevel(logging.WARNING)
 
     
     
-def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="dedupe_dataframe", threshold=.2):
+def dedupe_dataframe(df, field_properties, canonicalize=True, config_name="dedupe_dataframe", threshold=.2):
     # Import Data
     
     config_name = config_name.replace(" ", "_")
@@ -131,14 +131,14 @@ def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="de
 
     canonical_list=[]
     
-    if canonical=='show_all' or canonical=='update_all':
+    if canonicalize== True:
         for i in dfa[1][0]['canonical representation'].keys():
             canonical_list.append(i)
             dfa[i + ' - ' + 'canonical'] = None
             dfa[i + ' - ' + 'canonical'] = dfa[1].apply(lambda x: x['canonical representation'][i])
-    elif canonical == 'show_none':
+    elif canonicalize == False:
         pass            
-    elif type(canonical) == list:
+    elif type(canonicalize) == list:
         for i in canonical:
             dfa[i + ' - ' + 'canonical'] = None
             dfa[i + ' - ' + 'canonical'] = dfa[1].apply(lambda x: x['canonical representation'][i])
@@ -149,15 +149,6 @@ def dedupe_dataframe(df, field_properties, canonical='show_all', config_name="de
     dfa.set_index('Id', inplace=True)
 
     df = df.join(dfa)
-
-    if canonical=='update_all':
-        for i in canonical_list:
-            df[i] = df[i + ' - ' + 'canonical'].combine_first(df[i])
-            df = df.drop(columns=[i + ' - ' + 'canonical'])    
-    elif type(canonical)==list:
-        for i in canonical:
-            df[i] = df[i + ' - ' + 'canonical'].combine_first(df[i])
-            df = df.drop(columns=[i + ' - ' + 'canonical'])
             
     df.drop(columns=[1, 'dictionary'], inplace=True)
         
