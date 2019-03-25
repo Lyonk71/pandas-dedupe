@@ -13,7 +13,7 @@ logging.getLogger().setLevel(logging.WARNING)
 
     
     
-def dedupe_dataframe(df, field_properties, canonicalize=True, config_name="dedupe_dataframe", threshold=.2):
+def dedupe_dataframe(df, field_properties, canonicalize=False, config_name="dedupe_dataframe", threshold=.2):
     # Import Data
     
     config_name = config_name.replace(" ", "_")

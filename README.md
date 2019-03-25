@@ -62,11 +62,11 @@ pip install pandas-dedupe
 
 ### Set Confidence Threshold
 
-    pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'middle_initial'], confidence_threshold=.3)
+    pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'middle_initial'], threshold=.3)
     
     #------------------------------additional details------------------------------
     
-    #The default confidence_threshold is .2.
+    #The default threshold is .2.
     
     #The maximum value needed by at least one score in a cluster for the cluster to
     #be recorded. For instance, with a cluster threshold of .3, the cluster below 
@@ -84,6 +84,23 @@ pip install pandas-dedupe
     #|-----------|------------|------------|
     #| Ringo     | .2         |            |
     #| Ronald    | .2         |            |
+    
+### Canonicalize Fields
+
+    pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'payment_type'], canonicalize=True)
+    
+    #------------------------------additional details------------------------------
+    
+    #Creates a standardized version of every element by field & cluster id for instance,
+    #if you had the field "first_name", and the first cluster id had 3 items, "John",
+    #"John", and "Johnny", the canonicalized version would have "John" listed for all
+    #three in a new field called "first_name - canonical"
+    
+    #If you prefer only canonicalize a few of your fields, you can set the parameter
+    #as a list of fields you want a canonical version for. In my example above, you
+    #could have written canonicalize=['first_name', 'last_name'], and you would get
+    #a canonical version for first_name, and last_name, but not for payment_type.
+        
 
 ### Specifying Types
 
