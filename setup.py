@@ -24,4 +24,4 @@ setup(name='pandas_dedupe',
       
       #Enable pypi description
       long_description=long_description,
-      long_description_content_type='text/markdown')
+      long_description_content_type="text/markdown")
