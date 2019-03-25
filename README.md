@@ -60,31 +60,7 @@ pip install pandas-dedupe
     
 # Advanced Usage
 
-### Set Confidence Threshold
 
-    pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'middle_initial'], threshold=.3)
-    
-    #------------------------------additional details------------------------------
-    
-    #The default threshold is .2.
-    
-    #The maximum value needed by at least one score in a cluster for the cluster to
-    #be recorded. For instance, with a cluster threshold of .3, the cluster below 
-    #would be kept:
-    
-    #| name      | confidence | cluster id |
-    #|-----------|------------|------------|
-    #| John      | .7         | 0          |
-    #| Johnny    | .6         | 0          |
-    #| Johnathon | .4         | 0          |
-    
-    #In the same case, the following cluster would not be recognized:
-    
-    #| name      | confidence | cluster id |
-    #|-----------|------------|------------|
-    #| Ringo     | .2         |            |
-    #| Ronald    | .2         |            |
-    
 ### Canonicalize Fields
 
     pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'payment_type'], canonicalize=True)

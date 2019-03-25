@@ -13,7 +13,7 @@ logging.getLogger().setLevel(logging.WARNING)
 
     
     
-def dedupe_dataframe(df, field_properties, canonicalize=False, config_name="dedupe_dataframe", threshold=.2):
+def dedupe_dataframe(df, field_properties, canonicalize=False, config_name="dedupe_dataframe"):
     # Import Data
     
     config_name = config_name.replace(" ", "_")
@@ -79,7 +79,7 @@ def dedupe_dataframe(df, field_properties, canonicalize=False, config_name="dedu
 
     # ## Set threshold
 
-    # threshold = deduper.threshold(data_d, recall_weight=1)
+    threshold = deduper.threshold(data_d, recall_weight=1)
 
     # ## Clustering
 
@@ -139,7 +139,7 @@ def dedupe_dataframe(df, field_properties, canonicalize=False, config_name="dedu
     elif canonicalize == False:
         pass            
     elif type(canonicalize) == list:
-        for i in canonical:
+        for i in canonicalize:
             dfa[i + ' - ' + 'canonical'] = None
             dfa[i + ' - ' + 'canonical'] = dfa[1].apply(lambda x: x['canonical representation'][i])
 
