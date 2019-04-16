@@ -126,6 +126,7 @@ accurate in some cases, but runs much slower. Works with String and ShortString 
 
 # Contributors
 [Tyler Marrs](http://tylermarrs.com/)
+
 [Tawni Marrs](https://github.com/tawnimarrs)
 
 # Credits
