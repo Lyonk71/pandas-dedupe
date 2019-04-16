@@ -124,6 +124,10 @@ Additional supported parameters are:
 * **crf** - Use conditional random fields for comparisons rather than distance metric. May be more
 accurate in some cases, but runs much slower. Works with String and ShortString types.
 
+# Contributors
+[Tyler Marrs](http://tylermarrs.com/)
+[Tawni Marrs](https://github.com/tawnimarrs)
+
 # Credits
 
 Many thanks to folks at [DataMade](https://datamade.us/) for making the the [Dedupe library](https://github.com/dedupeio/dedupe) publicly available. People interested in a code-free implementation of the dedupe library can find a link here: [Dedupe.io](https://dedupe.io/pricing/).
