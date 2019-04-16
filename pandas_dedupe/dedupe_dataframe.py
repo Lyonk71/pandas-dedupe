@@ -99,6 +99,9 @@ def _cluster(deduper, data, threshold, canonicalize):
             The dedupe formatted data dictionary.
         threshold : dedupe.Threshold
             The threshold used for clustering.
+        canonicalize : bool or list, default False
+            Option that provides the canonical records as additional columns.
+            Specifying a list of column names only canonicalizes those columns.
 
         Returns
         -------
@@ -167,8 +170,9 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
             The dataframe to deduplicate.
         field_properties : list
             A list specifying what fields to use for deduplicating records.
-        canonicalize : bool, default False
-            Option that provides the canonical record as additional columns.
+        canonicalize : bool or list, default False
+            Option that provides the canonical records as additional columns.
+            Specifying a list of column names only canonicalizes those columns.
         config_name : str, default dedupe_dataframe
             The configuration file name. Note that this will be used as 
             a prefix to save the settings and training files.
