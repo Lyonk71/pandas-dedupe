@@ -139,7 +139,12 @@ def _cluster(deduper, data, threshold, canonicalize):
             }
 
             if canonicalize:
-                for key in canonical_rep.keys():
+                fields_to_canon = canonical_rep.keys()
+
+                if isinstance(canonicalize, list):
+                    fields_to_canon = canonicalize
+
+                for key in fields_to_canon:
                     canon_key = 'canonical_' + key
                     tmp[canon_key] = canonical_rep[key]
 
