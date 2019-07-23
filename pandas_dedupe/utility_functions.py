@@ -14,7 +14,7 @@ def clean_punctuation(df):
         df[i] = df[i].astype(str) 
     df = df.applymap(lambda x: x.lower())
     for i in df.columns:
-        df[i] = df[i].str.replace('[^\w\s\.\-\(\)\,\:\/\\\\]','')
+        df[i] = df[i].str.replace('[^\w\s\@\.\-\(\)\,\:\/\\\\]','')
     df = df.applymap(lambda x: trim(x))
     df = df.applymap(lambda x: unidecode(x))
     for i in df.columns:

@@ -161,7 +161,7 @@ def _cluster(deduper, data, threshold, canonicalize):
 
 def dedupe_dataframe(df, field_properties, canonicalize=False,
                      config_name="dedupe_dataframe", recall_weight=1,
-                     sample_size=0.3):
+                     sample_size=0.3,return_titlecase=False):
     """Deduplicates a dataframe given fields of interest.
 
         Parameters
@@ -183,6 +183,8 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
         sample_size : float, default 0.3
             Specify the sample size used for training as a float from 0 to 1.
             By default it is 30% (0.3) of our data.
+        return_titlecase : bool, default False
+            Applies titlecase to all elements in the returned Dataframe.
 
         Returns
         -------
@@ -219,5 +221,15 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
     clustered_df = _cluster(deduper, data_d, threshold, canonicalize)
     results = df.join(clustered_df, how='left')
     results.drop(['dictionary'], axis=1, inplace=True)
+
+    # reverting Nonetypes back to Nan
+    results.fillna(value=pd.np.nan, inplace=True)
+    
+    # if user chooses return_titlecase=True
+    # convert dataframe to titlecase
+    # converts strings only - this avoids converting
+    # ints such as confidence score and cluster ID
+    if return_titlecase == True:
+        results = results.applymap(lambda x: str(x).title() if isinstance(x,str) and pd.notnull(x) else x)
 
     return results
