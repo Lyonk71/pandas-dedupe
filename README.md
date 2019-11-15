@@ -58,6 +58,32 @@ pip install pandas-dedupe
     #Keeping these files will eliminate the need to retrain your model in the future. 
     #If you would like to retrain your model, just delete the settings and training files.
     
+### Fuzzy Left Join 
+
+    import pandas as pd
+    import pandas_dedupe
+
+    #load dataframes
+    df_left = pd.read_csv('file_a.csv')
+    df_right= pd.read_csv('file_b.csv')
+    
+    #initiate matching
+    df_final = pandas_dedupe.left_join(df_left, df_right, ['field_1', 'field_2', 'field_3', 'field_4'])
+
+    #send output to csv
+    df_final.to_csv('df_left_join_output.csv')
+    
+    
+    #------------------------------additional details------------------------------
+    
+    #Use identical field names when linking dataframes.
+    
+    #Record linkage should only be used on dataframes that have been deduplicated.
+       
+    #A training file and a settings file will be created while running Dedupe. 
+    #Keeping these files will eliminate the need to retrain your model in the future. 
+    #If you would like to retrain your model, just delete the settings and training files.
+
 # Advanced Usage
 
 
@@ -76,7 +102,6 @@ pip install pandas-dedupe
     #as a list of fields you want a canonical version for. In my example above, you
     #could have written canonicalize=['first_name', 'last_name'], and you would get
     #a canonical version for first_name, and last_name, but not for payment_type.
-        
 
 ### Specifying Types
 
@@ -99,7 +124,14 @@ pip install pandas-dedupe
     
     #If you want to specify either a 'crf' or 'has missing' parameter, a tuple with three elements
     #must be used. ('first_name', 'String', 'crf') works, ('first_name', 'crf') does not work.
-        
+
+### Recall Weight & Sample Size
+    Within the dedupe_dataframe() function, optional parameters exist for specifying recall_weight and sample_size:
+    * **recall_weight** - Ranges from 0 to 2. When we set a recall weight of 2, we are saying we care twice as much
+    about recall as we do precision
+    * **sample_size** - Specify the sample size used for training as a float from 0 to 1.
+    By default it is 30% (0.3) of our data.
+
 # Types
 
 Dedupe supports a variety of datatypes; a full listing with documentation can be found [here.](https://docs.dedupe.io/en/latest/Variable-definition.html#)
@@ -111,10 +143,10 @@ pandas-dedupe officially supports the following datatypes:
 * **DateTime** - For comparing dates.
 * **LatLong** - (39.990334, 70.012) will not match to (40.01, 69.98) using a string distance
 metric, even though the points are in a geographically similar location. The LatLong type resolves
- this by calculating the haversine distance between compared coordinates. LatLong requires
- the field to be in the format (Lat, Lng). The value can be a string, a tuple containing two
- strings, a tuple containing two floats, or a tuple containing two integers. If the format
- is not able to be processed, you will get a traceback.
+this by calculating the haversine distance between compared coordinates. LatLong requires
+the field to be in the format (Lat, Lng). The value can be a string, a tuple containing two
+strings, a tuple containing two floats, or a tuple containing two integers. If the format
+is not able to be processed, you will get a traceback.
 * **Exact** - Tests wheter fields are an exact match.
 * **Exists** - Sometimes, the presence or absence of data can be useful in predicting a match.
 The Exists type tests for whether both, one, or neither of fields are null.
