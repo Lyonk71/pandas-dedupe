@@ -8,7 +8,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 
 setup(name='pandas_dedupe',
-      version='1.0.0',
+      version='1.1.0',
       description='The Dedupe library made easy with Pandas.',
       url='https://github.com/Lyonk71/pandas-dedupe',
       author='Keith Lyons',
