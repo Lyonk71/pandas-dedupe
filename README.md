@@ -58,32 +58,6 @@ pip install pandas-dedupe
     #Keeping these files will eliminate the need to retrain your model in the future. 
     #If you would like to retrain your model, just delete the settings and training files.
     
-### Fuzzy Left Join 
-
-    import pandas as pd
-    import pandas_dedupe
-
-    #load dataframes
-    df_left = pd.read_csv('file_a.csv')
-    df_right= pd.read_csv('file_b.csv')
-    
-    #initiate matching
-    df_final = pandas_dedupe.left_join(df_left, df_right, ['field_1', 'field_2', 'field_3', 'field_4'])
-
-    #send output to csv
-    df_final.to_csv('df_left_join_output.csv')
-    
-    
-    #------------------------------additional details------------------------------
-    
-    #Use identical field names when linking dataframes.
-    
-    #Record linkage should only be used on dataframes that have been deduplicated.
-       
-    #A training file and a settings file will be created while running Dedupe. 
-    #Keeping these files will eliminate the need to retrain your model in the future. 
-    #If you would like to retrain your model, just delete the settings and training files.
-
 # Advanced Usage
 
 
