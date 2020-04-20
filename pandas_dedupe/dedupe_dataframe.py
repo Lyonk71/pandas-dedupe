@@ -16,10 +16,52 @@ import pandas as pd
 logging.getLogger().setLevel(logging.WARNING)
 
 
-def _train(settings_file, training_file, data, field_properties, sample_size):
-    """Internal method that trains the deduper model if a training file does
-    not exist.
+def _active_learning(data, sample_size, deduper, training_file, settings_file):
+    """Internal method that trains the deduper model using active learning.
+        Parameters
+        ----------
+        data : dict
+            The dictionary form of the dataframe that dedupe requires.
+        sample_size : float, default 0.3
+            Specify the sample size used for training as a float from 0 to 1.
+            By default it is 30% (0.3) of our data.
+        deduper : a dedupe model instance
+        training_file : str
+            A path to a training file that will be loaded to keep training
+            from.
+        settings_file : str
+            A path to a settings file that will be loaded if it exists.
+            
+        Returns
+        -------
+        dedupe.Dedupe
+            A trained dedupe model instance.
+    """
+    # To train dedupe, we feed it a sample of records.
+    sample_num = math.floor(len(data) * sample_size)
+    deduper.sample(data, sample_num)
 
+    print('starting active labeling...')
+
+    dedupe.consoleLabel(deduper)
+
+    # Using the examples we just labeled, train the deduper and learn
+    # blocking predicates
+    deduper.train()
+
+    # When finished, save our training to disk
+    with open(training_file, 'w') as tf:
+        deduper.writeTraining(tf)
+
+    # Save our weights and predicates to disk.
+    with open(settings_file, 'wb') as sf:
+        deduper.writeSettings(sf)
+    
+    return deduper
+
+def _train(settings_file, training_file, data, field_properties, sample_size, update_model):
+    """Internal method that trains the deduper model from scratch or update
+        an existing dedupe model.
         Parameters
         ----------
         settings_file : str
@@ -35,62 +77,52 @@ def _train(settings_file, training_file, data, field_properties, sample_size):
         sample_size : float, default 0.3
             Specify the sample size used for training as a float from 0 to 1.
             By default it is 30% (0.3) of our data.
-
+        update_model : bool, default False
+            If True, it allows user to update existing model by uploading
+            training file.
         Returns
         -------
         dedupe.Dedupe
             A dedupe model instance.
     """
-    # If a settings file already exists, we'll just load that and skip training
-    if os.path.exists(settings_file):
-        print('reading from', settings_file)
-        with open(settings_file, 'rb') as f:
-            deduper = dedupe.StaticDedupe(f)
+    # Define the fields dedupe will pay attention to
+    fields = []
+    select_fields(fields, field_properties)
+    
+    if update_model == False:
+        
+        # If a settings file already exists, we'll just load that and skip training
+        if os.path.exists(settings_file):
+            print('reading from', settings_file)
+            with open(settings_file, 'rb') as f:
+                deduper = dedupe.StaticDedupe(f)
+        
+        #Create a new deduper object and pass our data model to it.
+        else:
+            # Initialise dedupe
+            deduper = dedupe.Dedupe(fields)
+            
+            # Launch active learning
+            deduper = _active_learning(data, sample_size, deduper, training_file, settings_file)
+            
     else:
         # ## Training
-        # Define the fields dedupe will pay attention to
-        fields = []
-        select_fields(fields, field_properties)
-
-        # Create a new deduper object and pass our data model to it.
+        # Initialise dedupe
         deduper = dedupe.Dedupe(fields)
-
-        # To train dedupe, we feed it a sample of records.
-        sample_num = math.floor(len(data) * sample_size)
-        deduper.sample(data, sample_num)
-
-        # If we have training data saved from a previous run of dedupe,
-        # look for it and load it in.
-        # __Note:__ if you want to train from scratch, delete the training_file
-        if os.path.exists(training_file):
-            print('reading labeled examples from ', training_file)
-            with open(training_file, 'rb') as f:
-                deduper.readTraining(f)
-
-        print('starting active labeling...')
-
-        dedupe.consoleLabel(deduper)
-
-        # Using the examples we just labeled, train the deduper and learn
-        # blocking predicates
-        deduper.train()
-
-        # When finished, save our training to disk
-        with open(training_file, 'w') as tf:
-            deduper.writeTraining(tf)
-
-        # Save our weights and predicates to disk.  If the settings file
-        # exists, we will skip all the training and learning next time we run
-        # this file.
-        with open(settings_file, 'wb') as sf:
-            deduper.writeSettings(sf)
+        
+        # Import existing model
+        print('reading labeled examples from ', training_file)
+        with open(training_file, 'rb') as f:
+            deduper.readTraining(f)
+        
+        # Launch active learning
+        deduper = _active_learning(data, sample_size, deduper, training_file, settings_file)
 
     return deduper
 
 
 def _cluster(deduper, data, threshold, canonicalize):
     """Internal method that clusters the data.
-
         Parameters
         ----------
         deduper : dedupe.Deduper
@@ -102,7 +134,6 @@ def _cluster(deduper, data, threshold, canonicalize):
         canonicalize : bool or list, default False
             Option that provides the canonical records as additional columns.
             Specifying a list of column names only canonicalizes those columns.
-
         Returns
         -------
         pd.DataFrame
@@ -160,10 +191,9 @@ def _cluster(deduper, data, threshold, canonicalize):
 
 
 def dedupe_dataframe(df, field_properties, canonicalize=False,
-                     config_name="dedupe_dataframe", recall_weight=1,
+                     config_name="dedupe_dataframe", update_model=False, recall_weight=1,
                      sample_size=0.3):
     """Deduplicates a dataframe given fields of interest.
-
         Parameters
         ----------
         df : pd.DataFrame
@@ -176,6 +206,9 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
         config_name : str, default dedupe_dataframe
             The configuration file name. Note that this will be used as 
             a prefix to save the settings and training files.
+        update_model : bool, default False
+            If True, it allows user to update existing model by uploading
+            training file. 
         recall_weight : int, default 1
             Find the threshold that will maximize a weighted average of our
             precision and recall.  When we set the recall weight to 2, we are
@@ -183,14 +216,12 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
         sample_size : float, default 0.3
             Specify the sample size used for training as a float from 0 to 1.
             By default it is 30% (0.3) of our data.
-
         Returns
         -------
         pd.DataFrame
             A pandas dataframe that contains the cluster id and confidence
             score. Optionally, it will contain canonicalized columns for all
             attributes of the record.
-
     """
     # Import Data  
     config_name = config_name.replace(" ", "_")
@@ -207,10 +238,10 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
     df['dictionary'] = df.apply(
         lambda x: dict(zip(df.columns, x.tolist())), axis=1)
     data_d = dict(zip(df.index, df.dictionary))
-    
+
     # train or load the model
     deduper = _train(settings_file, training_file, data_d, field_properties,
-                     sample_size)
+                     sample_size, update_model)
 
     # ## Set threshold
     threshold = deduper.threshold(data_d, recall_weight=recall_weight)
