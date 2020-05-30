@@ -92,7 +92,7 @@ def _train(settings_file, training_file, data, field_properties, sample_size, up
         
         # If a settings file already exists, we'll just load that and skip training
         if os.path.exists(settings_file):
-            print('reading from', settings_file)
+            print('Reading from', settings_file)
             with open(settings_file, 'rb') as f:
                 deduper = dedupe.StaticDedupe(f, num_cores=None)
         
@@ -110,7 +110,7 @@ def _train(settings_file, training_file, data, field_properties, sample_size, up
         deduper = dedupe.Dedupe(fields, num_cores=None)
         
         # Import existing model
-        print('reading labeled examples from ', training_file)
+        print('Reading labeled examples from ', training_file)
         with open(training_file, 'rb') as f:
             deduper.prepare_training(data, training_file=f)
         
