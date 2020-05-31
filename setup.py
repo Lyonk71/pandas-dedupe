@@ -16,7 +16,7 @@ setup(name='pandas_dedupe',
       license='MIT',
       packages=['pandas_dedupe'],
       install_requires=[
-          'dedupe==1.10.0',
+          'dedupe',
           'unidecode',
           'pandas',
       ],
