@@ -9,7 +9,6 @@ import logging
 import math
 
 import dedupe
-
 import pandas as pd
 
 
@@ -39,11 +38,11 @@ def _active_learning(data, sample_size, deduper, training_file, settings_file):
     """
     # To train dedupe, we feed it a sample of records.
     sample_num = math.floor(len(data) * sample_size)
-    deduper.sample(data, sample_num)
+    deduper.prepare_training(data, sample_size=sample_num)
 
-    print('starting active labeling...')
+    print('Starting active labeling...')
 
-    dedupe.consoleLabel(deduper)
+    dedupe.console_label(deduper)
 
     # Using the examples we just labeled, train the deduper and learn
     # blocking predicates
@@ -51,11 +50,11 @@ def _active_learning(data, sample_size, deduper, training_file, settings_file):
 
     # When finished, save our training to disk
     with open(training_file, 'w') as tf:
-        deduper.writeTraining(tf)
+        deduper.write_training(tf)
 
     # Save our weights and predicates to disk.
     with open(settings_file, 'wb') as sf:
-        deduper.writeSettings(sf)
+        deduper.write_settings(sf)
     
     return deduper
 
@@ -93,14 +92,14 @@ def _train(settings_file, training_file, data, field_properties, sample_size, up
         
         # If a settings file already exists, we'll just load that and skip training
         if os.path.exists(settings_file):
-            print('reading from', settings_file)
+            print('Reading from', settings_file)
             with open(settings_file, 'rb') as f:
-                deduper = dedupe.StaticDedupe(f)
+                deduper = dedupe.StaticDedupe(f, num_cores=None)
         
         #Create a new deduper object and pass our data model to it.
         else:
             # Initialise dedupe
-            deduper = dedupe.Dedupe(fields)
+            deduper = dedupe.Dedupe(fields, num_cores=None)
             
             # Launch active learning
             deduper = _active_learning(data, sample_size, deduper, training_file, settings_file)
@@ -108,12 +107,12 @@ def _train(settings_file, training_file, data, field_properties, sample_size, up
     else:
         # ## Training
         # Initialise dedupe
-        deduper = dedupe.Dedupe(fields)
+        deduper = dedupe.Dedupe(fields, num_cores=None)
         
         # Import existing model
-        print('reading labeled examples from ', training_file)
+        print('Reading labeled examples from ', training_file)
         with open(training_file, 'rb') as f:
-            deduper.readTraining(f)
+            deduper.prepare_training(data, training_file=f)
         
         # Launch active learning
         deduper = _active_learning(data, sample_size, deduper, training_file, settings_file)
@@ -140,8 +139,8 @@ def _cluster(deduper, data, threshold, canonicalize):
             A dataframe storing the clustering results.
     """
     # ## Clustering
-    print('clustering...')
-    clustered_dupes = deduper.match(data, threshold)
+    print('Clustering...')
+    clustered_dupes = deduper.partition(data, threshold)
 
     print('# duplicate sets', len(clustered_dupes))
 
@@ -191,7 +190,7 @@ def _cluster(deduper, data, threshold, canonicalize):
 
 
 def dedupe_dataframe(df, field_properties, canonicalize=False,
-                     config_name="dedupe_dataframe", update_model=False, recall_weight=1,
+                     config_name="dedupe_dataframe", update_model=False, threshold=0.4,
                      sample_size=0.3):
     """Deduplicates a dataframe given fields of interest.
         Parameters
@@ -209,10 +208,9 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
         update_model : bool, default False
             If True, it allows user to update existing model by uploading
             training file. 
-        recall_weight : int, default 1
-            Find the threshold that will maximize a weighted average of our
-            precision and recall.  When we set the recall weight to 2, we are
-            saying we care twice as much about recall as we do precision.
+        threshold : float, default 0.4
+           Only put together records into clusters if the cophenetic similarity of the cluster 
+           is greater than the threshold.
         sample_size : float, default 0.3
             Specify the sample size used for training as a float from 0 to 1.
             By default it is 30% (0.3) of our data.
@@ -229,7 +227,7 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
     settings_file = config_name + '_learned_settings'
     training_file = config_name + '_training.json'
 
-    print('importing data ...')
+    print('Importing data ...')
 
     df = clean_punctuation(df)
     
@@ -239,14 +237,11 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
         lambda x: dict(zip(df.columns, x.tolist())), axis=1)
     data_d = dict(zip(df.index, df.dictionary))
 
-    # train or load the model
+    # Train or load the model
     deduper = _train(settings_file, training_file, data_d, field_properties,
                      sample_size, update_model)
 
-    # ## Set threshold
-    threshold = deduper.threshold(data_d, recall_weight=recall_weight)
-
-    # cluster the records
+    # Cluster the records
     clustered_df = _cluster(deduper, data_d, threshold, canonicalize)
     results = df.join(clustered_df, how='left')
     results.drop(['dictionary'], axis=1, inplace=True)

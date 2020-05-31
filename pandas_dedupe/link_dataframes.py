@@ -18,7 +18,7 @@ def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
     settings_file = config_name + '_learned_settings'
     training_file = config_name + '_training.json'
  
-    print('importing data ...')
+    print('Importing data ...')
 
     dfa = clean_punctuation(dfa)
     specify_type(dfa, field_properties)
@@ -47,9 +47,9 @@ def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
 
 
     if os.path.exists(settings_file):
-        print('reading from', settings_file)
+        print('Reading from', settings_file)
         with open(settings_file, 'rb') as sf :
-            linker = dedupe.StaticRecordLink(sf)
+            linker = dedupe.StaticRecordLink(sf, num_cores=None)
 
     else:
         # Define the fields the linker will pay attention to
@@ -63,17 +63,17 @@ def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
               
                 
         # Create a new linker object and pass our data model to it.
-        linker = dedupe.RecordLink(fields)
+        linker = dedupe.RecordLink(fields, num_cores=None)
         # To train the linker, we feed it a sample of records.
-        linker.sample(data_1, data_2, 15000)
+        linker.prepare_training(data_1, data_2, sample_size=15000)
 
         # If we have training data saved from a previous run of linker,
         # look for it an load it in.
         # __Note:__ if you want to train from scratch, delete the training_file
         if os.path.exists(training_file):
-            print('reading labeled examples from ', training_file)
+            print('Reading labeled examples from ', training_file)
             with open(training_file) as tf :
-                linker.readTraining(tf)
+                linker.prepare_training(data, training_file=tf)
 
         # ## Active learning
         # Dedupe will find the next pair of records
@@ -81,20 +81,20 @@ def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
         # or not.
         # use 'y', 'n' and 'u' keys to flag duplicates
         # press 'f' when you are finished
-        print('starting active labeling...')
+        print('Starting active labeling...')
 
-        dedupe.consoleLabel(linker)
+        dedupe.console_label(linker)
         linker.train()
 
         # When finished, save our training away to disk
         with open(training_file, 'w') as tf :
-            linker.writeTraining(tf)
+            linker.write_training(tf)
 
         # Save our weights and predicates to disk.  If the settings file
         # exists, we will skip all the training and learning next time we run
         # this file.
         with open(settings_file, 'wb') as sf :
-            linker.writeSettings(sf)
+            linker.write_settings(sf)
 
 
     # ## Blocking
@@ -108,8 +108,8 @@ def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
     # If we had more data, we would not pass in all the blocked data into
     # this function but a representative sample.
 
-    print('clustering...')
-    linked_records = linker.match(data_1, data_2, 0)
+    print('Clustering...')
+    linked_records = linker.join(data_1, data_2, 0)
 
     print('# duplicate sets', len(linked_records))
     
