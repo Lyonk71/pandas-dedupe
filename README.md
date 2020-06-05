@@ -63,10 +63,32 @@ pip install pandas-dedupe
 
 
 ### Canonicalize Fields
+The canonicalize parameter will standardize names in a given cluster. Original fields are kept also.
 
     pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'payment_type'], canonicalize=True)
+    
+### Update Threshold (dedupe_dataframe only)
+Only put together records into clusters if the cophenetic similarity of the cluster is greater than
+the threshold.
 
+    pandas_dedupe.dedupe_dataframe(df, ['first_name', 'last_name'], threshold=.7)
+    
+### Update Existing Model (dedupe_dataframe only)
+If `True`, it allows a user to update the existing model.
+    
+    pandas_dedupe.dedupe_dataframe(df, ['first_name', 'last_name'], update_model=True)
+
+### Recall Weight & Sample Size
+    Within the dedupe_dataframe() function, optional parameters exist for specifying recall_weight and sample_size:
+    * **recall_weight** - Ranges from 0 to 2. When we set a recall weight of 2, we are saying we care twice as much
+    about recall as we do precision
+    * **sample_size** - Specify the sample size used for training as a float from 0 to 1.
+    By default it is 30% (0.3) of our data.
+    
 ### Specifying Types
+If you'd like to specify dates, spatial data, etc, do so here. The structure must be like so: 
+`('field', 'type', 'additional_parameter)`. the `additional_parameter` section can be ommitted.
+The default type is `String` See the full list of types below.
 
     # Price Example
     pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', ('salary', 'Price')])       
@@ -76,19 +98,6 @@ pip install pandas-dedupe
     
     # crf Example
     pandas_dedupe.dedupe_dataframe(df,[('first_name', 'String', 'crf'), 'last_name', (m_initial, 'Exact')])
-    
-### Update Threshold (dedupe_dataframe only)
-    pandas_dedupe.dedupe_dataframe(df, ['first_name', 'last_name'], threshold=.7)
-    
-### Update Existing Model (dedupe_dataframe only)
-    pandas_dedupe.dedupe_dataframe(df, ['first_name', 'last_name'], update_model=True)
-
-### Recall Weight & Sample Size
-    Within the dedupe_dataframe() function, optional parameters exist for specifying recall_weight and sample_size:
-    * **recall_weight** - Ranges from 0 to 2. When we set a recall weight of 2, we are saying we care twice as much
-    about recall as we do precision
-    * **sample_size** - Specify the sample size used for training as a float from 0 to 1.
-    By default it is 30% (0.3) of our data.
 
 # Types
 
