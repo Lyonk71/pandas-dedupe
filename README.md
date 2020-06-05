@@ -23,13 +23,14 @@ pip install pandas-dedupe
     df_final = pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'middle_initial'])
 
     #send output to csv
-    df_final.to_csv('deduplication_output.csv')
-    
+    df_final.to_csv('deduplication_output.csv')    
     
     #------------------------------additional details------------------------------
 
     #A training file and a settings file will be created while running Dedupe. 
+    
     #Keeping these files will eliminate the need to retrain your model in the future. 
+    
     #If you would like to retrain your model, just delete the settings and training files.
 
 ### Matching / Record Linkage
@@ -64,40 +65,23 @@ pip install pandas-dedupe
 ### Canonicalize Fields
 
     pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'payment_type'], canonicalize=True)
-    
-    #------------------------------additional details------------------------------
-    
-    #Creates a standardized version of every element by field & cluster id for instance,
-    #if you had the field "first_name", and the first cluster id had 3 items, "John",
-    #"John", and "Johnny", the canonicalized version would have "John" listed for all
-    #three in a new field called "first_name - canonical"
-    
-    #If you prefer only canonicalize a few of your fields, you can set the parameter
-    #as a list of fields you want a canonical version for. In my example above, you
-    #could have written canonicalize=['first_name', 'last_name'], and you would get
-    #a canonical version for first_name, and last_name, but not for payment_type.
 
 ### Specifying Types
 
     # Price Example
-    pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', ('salary', 'Price')])
-       
+    pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', ('salary', 'Price')])       
+    
     # has missing Example
-    pandas_dedupe.link_dataframes(df,['SSN', ('bio_pgraph', 'Text'), ('salary', 'Price', 'has missing')])
+    pandas_dedupe.link_dataframes(df,['SSN', ('bio_pgraph', 'Text'), ('salary', 'Price', 'has missing')])    
     
     # crf Example
     pandas_dedupe.dedupe_dataframe(df,[('first_name', 'String', 'crf'), 'last_name', (m_initial, 'Exact')])
     
+### Update Threshold (dedupe_dataframe only)
+    pandas_dedupe.dedupe_dataframe(df, ['first_name', 'last_name'], threshold=.7)
     
-    #------------------------------additional details------------------------------
-    
-    #If a type is not explicity listed, String will be used.
-    
-    #Tuple (parenthesis) is required to declare all other types. If you prefer use tuple
-    #for string also, ('first_name', 'String'), that's fine.
-    
-    #If you want to specify either a 'crf' or 'has missing' parameter, a tuple with three elements
-    #must be used. ('first_name', 'String', 'crf') works, ('first_name', 'crf') does not work.
+### Update Existing Model (dedupe_dataframe only)
+    pandas_dedupe.dedupe_dataframe(df, ['first_name', 'last_name'], update_model=True)
 
 ### Recall Weight & Sample Size
     Within the dedupe_dataframe() function, optional parameters exist for specifying recall_weight and sample_size:
@@ -131,11 +115,11 @@ Additional supported parameters are:
 accurate in some cases, but runs much slower. Works with String and ShortString types.
 
 # Contributors
-[Tyler Marrs](http://tylermarrs.com/)
+[Tyler Marrs](http://tylermarrs.com/) - Refactored code, added docstrings, added `threshold` parameter
 
-[Tawni Marrs](https://github.com/tawnimarrs)
+[Tawni Marrs](https://github.com/tawnimarrs) - refactored code, added docstrings
 
-[ieriii](https://github.com/ieriii)
+[ieriii](https://github.com/ieriii) - Added `update_model` parameter, updated codebase to use `Dedupe 2.0`
 
 # Credits
 
