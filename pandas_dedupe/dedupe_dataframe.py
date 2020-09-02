@@ -58,7 +58,7 @@ def _active_learning(data, sample_size, deduper, training_file, settings_file):
     
     return deduper
 
-def _train(settings_file, training_file, data, field_properties, sample_size, update_model):
+def _train(settings_file, training_file, data, field_properties, sample_size, update_model, n_cores):
     """Internal method that trains the deduper model from scratch or update
         an existing dedupe model.
         Parameters
@@ -94,12 +94,12 @@ def _train(settings_file, training_file, data, field_properties, sample_size, up
         if os.path.exists(settings_file):
             print('Reading from', settings_file)
             with open(settings_file, 'rb') as f:
-                deduper = dedupe.StaticDedupe(f, num_cores=None)
+                deduper = dedupe.StaticDedupe(f, num_cores=n_cores)
         
         #Create a new deduper object and pass our data model to it.
         else:
             # Initialise dedupe
-            deduper = dedupe.Dedupe(fields, num_cores=None)
+            deduper = dedupe.Dedupe(fields, num_cores=n_cores)
             
             # Launch active learning
             deduper = _active_learning(data, sample_size, deduper, training_file, settings_file)
@@ -107,7 +107,7 @@ def _train(settings_file, training_file, data, field_properties, sample_size, up
     else:
         # ## Training
         # Initialise dedupe
-        deduper = dedupe.Dedupe(fields, num_cores=None)
+        deduper = dedupe.Dedupe(fields, num_cores=n_cores)
         
         # Import existing model
         print('Reading labeled examples from ', training_file)
@@ -191,7 +191,7 @@ def _cluster(deduper, data, threshold, canonicalize):
 
 def dedupe_dataframe(df, field_properties, canonicalize=False,
                      config_name="dedupe_dataframe", update_model=False, threshold=0.4,
-                     sample_size=0.3):
+                     sample_size=0.3, n_cores=None):
     """Deduplicates a dataframe given fields of interest.
         Parameters
         ----------
@@ -214,6 +214,10 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
         sample_size : float, default 0.3
             Specify the sample size used for training as a float from 0 to 1.
             By default it is 30% (0.3) of our data.
+        n_cores : int, default None
+            Specify the number of cores to use during clustering.
+            By default n_cores is equal to None (i.e. use multipressing equal to CPU count)
+    
         Returns
         -------
         pd.DataFrame
@@ -239,7 +243,7 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
 
     # Train or load the model
     deduper = _train(settings_file, training_file, data_d, field_properties,
-                     sample_size, update_model)
+                     sample_size, update_model, n_cores)
 
     # Cluster the records
     clustered_df = _cluster(deduper, data_d, threshold, canonicalize)
