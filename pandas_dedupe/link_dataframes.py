@@ -11,7 +11,7 @@ import pandas as pd
 
 
 
-def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
+def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes", n_cores=None):
     
     config_name = config_name.replace(" ", "_")
     
@@ -49,7 +49,7 @@ def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
     if os.path.exists(settings_file):
         print('Reading from', settings_file)
         with open(settings_file, 'rb') as sf :
-            linker = dedupe.StaticRecordLink(sf, num_cores=None)
+            linker = dedupe.StaticRecordLink(sf, num_cores=n_cores)
 
     else:
         # Define the fields the linker will pay attention to
@@ -63,7 +63,7 @@ def link_dataframes(dfa, dfb, field_properties, config_name="link_dataframes"):
               
                 
         # Create a new linker object and pass our data model to it.
-        linker = dedupe.RecordLink(fields, num_cores=None)
+        linker = dedupe.RecordLink(fields, num_cores=n_cores)
         # To train the linker, we feed it a sample of records.
         linker.prepare_training(data_1, data_2, sample_size=15000)
 
