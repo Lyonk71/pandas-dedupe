@@ -169,7 +169,7 @@ def _cluster(deduper, clean_data, messy_data, threshold, canonicalize):
     
     df_data = []
     # ## Writing Results    
-    for index, (messy_id, matches) in enumerate(clustered_dupes):
+    for _, (messy_id, matches) in enumerate(clustered_dupes):
         for canon_id, scores in matches:
             
             tmp = {
