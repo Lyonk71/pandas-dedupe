@@ -202,7 +202,7 @@ def _cluster(deduper, clean_data, messy_data, threshold, canonicalize):
 
 
 def gazetteer_dataframe(clean_data, messy_data, field_properties, canonicalize=False,
-                     settings_file=None, training_file=None, update_model=False, threshold=0.3,
+                     config_name="gazetteer_dataframe", update_model=False, threshold=0.3,
                      sample_size=1, n_cores=None):
     """Deduplicates a dataframe given fields of interest.
         Parameters
