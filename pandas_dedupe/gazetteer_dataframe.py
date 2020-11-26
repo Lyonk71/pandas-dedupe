@@ -249,7 +249,6 @@ def gazetteer_dataframe(clean_data, messy_data, field_properties, canonicalize=F
     print('Importing data ...')
     
     # Common column name
-    # common_name = ['name']
     common_name = clean_data.columns[0]
     
     # Canonical dataset (i.e. gazette)
