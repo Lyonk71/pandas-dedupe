@@ -96,7 +96,7 @@ def _train(settings_file, training_file, clean_data, messy_data, field_propertie
     """
     # Define the fields dedupe will pay attention to
     fields = []
-    select_fields(fields, field_properties)
+    select_fields(fields, [field_properties])
     
     if update_model == False:
         
@@ -211,8 +211,8 @@ def gazetteer_dataframe(clean_data, messy_data, field_properties, canonicalize=F
             The gazetteer dataframe.
         messy_data : pd.DataFrame
             The dataframe to deduplicate.
-        field_properties : list
-            A list specifying what fields to use for deduplicating records.
+        field_properties : str
+            A string specifying what fields to use for deduplicating records.
         canonicalize : bool or list, default False
             Option that provides the canonical records as additional columns.
             Specifying a list of column names only canonicalizes those columns.
@@ -249,12 +249,13 @@ def gazetteer_dataframe(clean_data, messy_data, field_properties, canonicalize=F
     print('Importing data ...')
     
     # Common column name
-    common_name = ['token']
+    # common_name = ['name']
+    common_name = clean_data.columns[0]
     
     # Canonical dataset (i.e. gazette)
     df_canonical = clean_punctuation(clean_data)
-    df_canonical.rename(columns={field_properties[0]: common_name[0]}, inplace=True)
-    specify_type(df_canonical, common_name)                
+    df_canonical.rename(columns={field_properties: common_name}, inplace=True)
+    specify_type(df_canonical, [common_name])                
     
     df_canonical['dictionary'] = df_canonical.apply(
         lambda x: dict(zip(df_canonical.columns, x.tolist())), axis=1)
@@ -262,8 +263,8 @@ def gazetteer_dataframe(clean_data, messy_data, field_properties, canonicalize=F
     
     # Messy dataset
     df_messy = clean_punctuation(messy_data)
-    df_messy.rename(columns={field_properties[0]: common_name[0]}, inplace=True)
-    specify_type(df_messy, common_name)                
+    df_messy.rename(columns={field_properties: common_name}, inplace=True)
+    specify_type(df_messy, [common_name])                
 
     df_messy['dictionary'] = df_messy.apply(
         lambda x: dict(zip(df_messy.columns, x.tolist())), axis=1)
@@ -276,6 +277,6 @@ def gazetteer_dataframe(clean_data, messy_data, field_properties, canonicalize=F
     # Cluster the records
     clustered_df = _cluster(deduper, canonical, messy, threshold, canonicalize)
     results = messy_data.join(clustered_df, how='left')
-    results.rename(columns={'canonical_'+str(common_name[0]): 'canonical_'+str(field_properties[0])}, inplace=True)
+    results.rename(columns={'canonical_'+str(common_name): 'canonical_'+str(field_properties)}, inplace=True)
 
     return results
