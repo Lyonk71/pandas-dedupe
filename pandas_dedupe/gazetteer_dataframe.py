@@ -247,6 +247,7 @@ def gazetteer_dataframe(clean_data, messy_data, field_properties, canonicalize=F
     training_file = config_name + '_training.json'
 
     print('Importing data ...')
+    assert type(clean_data)==pd.core.frame.DataFrame, 'Please provide a gazette in pandas dataframe format'
     assert len(clean_data.columns)==1, 'Please provide a gazetteer dataframe made of a single variable'
     assert type(field_properties) == str, 'field_properties must be in string (str) format'
 
