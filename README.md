@@ -162,7 +162,7 @@ Additional supported parameters are:
 
 [Tawni Marrs](https://github.com/tawnimarrs) - refactored code, added docstrings
 
-[ieriii](https://github.com/ieriii) - Added `update_model` parameter, updated codebase to use `Dedupe 2.0`, added support for multiprocessing, added `gazetteer_dedupe`.
+[ieriii](https://github.com/ieriii) - Added `update_model` parameter, updated codebase to use `Dedupe 2.0`, added support for multiprocessing, added `gazetteer_dataframe`.
 
 [Daniel Marczin](https://github.com/dim5) - Extensive updates to documentation to enhance readability.
 
