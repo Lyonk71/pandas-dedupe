@@ -48,10 +48,7 @@ df_clean = pd.read_csv('gazette.csv')
 df_messy = pd.read_csv('test_names.csv')
 
 #initiate deduplication
-df_final = pandas_dedupe.gazetteer_dataframe(df_clean,
-                                             df_messy,
-                                             'fullname'
-                                            )
+df_final = pandas_dedupe.gazetteer_dataframe(df_clean, df_messy, 'fullname', canonicalize=True)
 
 #send output to csv
 df_final.to_csv('gazetteer_deduplication_output.csv')
