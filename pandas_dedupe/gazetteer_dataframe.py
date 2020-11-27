@@ -247,7 +247,9 @@ def gazetteer_dataframe(clean_data, messy_data, field_properties, canonicalize=F
     training_file = config_name + '_training.json'
 
     print('Importing data ...')
-    
+    assert len(clean_data.columns)==1, 'Please provide a gazetteer dataframe made of single variable'
+    assert type(field_properties) == str, 'field_properties must be the string (str)'
+
     # Common column name
     common_name = clean_data.columns[0]
     
