@@ -85,7 +85,7 @@ The canonicalize parameter will standardize names in a given cluster. Original f
 pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'payment_type'], canonicalize=True)
 ```
 
-### Update Threshold (dedupe_dataframe only)
+### Update Threshold (dedupe_dataframe and gazetteer_dataframe only)
 
 Group records into clusters only if the cophenetic similarity of the cluster is greater than
 the threshold.
@@ -94,7 +94,7 @@ the threshold.
 pandas_dedupe.dedupe_dataframe(df, ['first_name', 'last_name'], threshold=.7)
 ```
 
-### Update Existing Model (dedupe_dataframe only)
+### Update Existing Model (dedupe_dataframe and gazetteer_dataframe only)
 
 If `True`, it allows a user to update the existing model.
 
@@ -162,7 +162,7 @@ Additional supported parameters are:
 
 [Tawni Marrs](https://github.com/tawnimarrs) - refactored code, added docstrings
 
-[ieriii](https://github.com/ieriii) - Added `update_model` parameter, updated codebase to use `Dedupe 2.0`, added support for multiprocessing.
+[ieriii](https://github.com/ieriii) - Added `update_model` parameter, updated codebase to use `Dedupe 2.0`, added support for multiprocessing, added `gazetteer_dedupe`.
 
 [Daniel Marczin](https://github.com/dim5) - Extensive updates to documentation to enhance readability.
 
