@@ -42,7 +42,7 @@ def _active_learning(data, sample_size, deduper, training_file, settings_file):
 
     print('Starting active labeling...')
 
-    dedupe.console_label(deduper)
+    dedupe.consoleLabel(deduper)
 
     # Using the examples we just labeled, train the deduper and learn
     # blocking predicates
