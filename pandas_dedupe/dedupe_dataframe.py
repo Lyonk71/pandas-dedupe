@@ -79,6 +79,9 @@ def _train(settings_file, training_file, data, field_properties, sample_size, up
         update_model : bool, default False
             If True, it allows user to update existing model by uploading
             training file.
+        n_cores : int, default None
+            Specify the number of cores to use during clustering.
+            By default n_cores is equal to None (i.e. use multipressing equal to CPU count).
         Returns
         -------
         dedupe.Dedupe
@@ -216,7 +219,7 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
             By default it is 30% (0.3) of our data.
         n_cores : int, default None
             Specify the number of cores to use during clustering.
-            By default n_cores is equal to None (i.e. use multipressing equal to CPU count)
+            By default n_cores is equal to None (i.e. use multipressing equal to CPU count).
     
         Returns
         -------

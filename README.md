@@ -17,9 +17,10 @@ pip install pandas-dedupe
 A training file and a settings file will be created while running Dedupe.
 Keeping these files will eliminate the need to retrain your model in the future.
 
-If you would like to retrain your model, just delete the settings and training files.
+If you would like to retrain your model from scratch, just delete the settings and training files.
 
-### Deduplication
+### Deduplication (dedupe_dataframe)
+`dedupe_dataframe` is for deduplication when you have data that can contain multiple records that can all refer to the same entity
 
 ```python
 import pandas as pd
@@ -34,6 +35,25 @@ df_final = pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'middle
 #send output to csv
 df_final.to_csv('deduplication_output.csv')
 ```
+
+### Gazetteer deduplication (gazetteer_dataframe)
+`gazetteer_dataframe` is for matching a messy dataset against a 'canonical dataset' (i.e. the gazette)
+
+```python
+import pandas as pd
+import pandas_dedupe
+
+#load dataframe
+df_clean = pd.read_csv('gazette.csv')
+df_messy = pd.read_csv('test_names.csv')
+
+#initiate deduplication
+df_final = pandas_dedupe.gazetteer_dataframe(df_clean, df_messy, 'fullname', canonicalize=True)
+
+#send output to csv
+df_final.to_csv('gazetteer_deduplication_output.csv')
+```
+
 
 ### Matching / Record Linkage
 
@@ -65,7 +85,7 @@ The canonicalize parameter will standardize names in a given cluster. Original f
 pandas_dedupe.dedupe_dataframe(df,['first_name', 'last_name', 'payment_type'], canonicalize=True)
 ```
 
-### Update Threshold (dedupe_dataframe only)
+### Update Threshold (dedupe_dataframe and gazetteer_dataframe only)
 
 Group records into clusters only if the cophenetic similarity of the cluster is greater than
 the threshold.
@@ -74,7 +94,7 @@ the threshold.
 pandas_dedupe.dedupe_dataframe(df, ['first_name', 'last_name'], threshold=.7)
 ```
 
-### Update Existing Model (dedupe_dataframe only)
+### Update Existing Model (dedupe_dataframe and gazetteer_dataframe only)
 
 If `True`, it allows a user to update the existing model.
 
@@ -142,7 +162,7 @@ Additional supported parameters are:
 
 [Tawni Marrs](https://github.com/tawnimarrs) - refactored code, added docstrings
 
-[ieriii](https://github.com/ieriii) - Added `update_model` parameter, updated codebase to use `Dedupe 2.0`, added support for multiprocessing.
+[ieriii](https://github.com/ieriii) - Added `update_model` parameter, updated codebase to use `Dedupe 2.0`, added support for multiprocessing, added `gazetteer_dataframe`.
 
 [Daniel Marczin](https://github.com/dim5) - Extensive updates to documentation to enhance readability.
 

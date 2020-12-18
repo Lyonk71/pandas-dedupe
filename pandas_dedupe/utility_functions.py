@@ -37,7 +37,7 @@ def select_fields(fields, field_properties):
                 
     
 def latlong_datatype(x):
-    if x == None:
+    if x is None:
         return None
     else:
         try:
@@ -45,8 +45,7 @@ def latlong_datatype(x):
             k,v = x
             k = float(k)
             v = float(v)
-            z = (k,v)
-            return z
+            return k, v
         except:
             raise Exception("Make sure that LatLong columns are tuples arranged like ('lat', 'lon')")
             
