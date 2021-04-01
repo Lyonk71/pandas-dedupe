@@ -1,4 +1,18 @@
+# Python Interpreter Files
 */__pycache__/*
 .python-version
+
+# Dedupe Data
 *_learned_settings
 *_training.json
+
+# OSX Files
+.DS_Store
+
+# Intellij IDEA Files
+.idea
+
+# Virtual Environment
+venv
+
+.direnv
