@@ -14,7 +14,7 @@ def clean_punctuation(df):
         df[i] = df[i].astype(str) 
     df = df.applymap(lambda x: x.lower())
     for i in df.columns:
-        df[i] = df[i].str.replace('[^\w\s\.\-\(\)\,\:\/\\\\]','')
+        df[i] = df[i].str.replace('[^\w\s\.\-\(\)\,\:\/\\\\]','', regex=True)
     df = df.applymap(lambda x: trim(x))
     df = df.applymap(lambda x: unidecode(x))
     for i in df.columns:
@@ -56,7 +56,7 @@ def specify_type(df, field_properties):
             df[i[0]] = df[i[0]].apply(lambda x: latlong_datatype(x))
         elif i[1] == 'Price':
             try:
-                df[i[0]] = df[i[0]].str.replace(",","")
+                df[i[0]] = df[i[0]].str.replace(",","", regex=False)
                 df[i[0]] = df[i[0]].replace({None: np.nan})
                 df[i[0]] = df[i[0]].astype(float)
                 df[i[0]] = df[i[0]].replace({np.nan: None})
