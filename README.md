@@ -149,13 +149,14 @@ pandas-dedupe officially supports the following datatypes:
 - **Exact** - Tests whether fields are an exact match.
 - **Exists** - Sometimes, the presence or absence of data can be useful in predicting a match.
   The Exists type tests for whether both, one, or neither of fields are null.
+- **Categorical** Comparison for qualitative type of things.
 
 Additional supported parameters are:
 
 - **has missing** - Can be used if one of your data fields contains null values
 - **crf** - Use conditional random fields for comparisons rather than distance metric. May be more
   accurate in some cases, but runs much slower. Works with String and ShortString types.
-
+- **categories** - categories in the form of a python list if type of data has been specified as `Categorical`.
 # Contributors
 
 [Tyler Marrs](http://tylermarrs.com/) - Refactored code, added docstrings, added `threshold` parameter

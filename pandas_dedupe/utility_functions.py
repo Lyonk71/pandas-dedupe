@@ -28,7 +28,9 @@ def select_fields(fields, field_properties):
         elif len(i)==2:
             fields.append({'field': i[0], 'type': i[1]})
         elif len(i)==3:
-            if i[2] == 'has missing':
+            if i[1]=='Categorical':
+                fields.append({'field': i[0], 'type': i[1], 'categories': i[2]})
+            elif i[2] == 'has missing':
                 fields.append({'field': i[0], 'type': i[1], 'has missing': True})
             elif i[2] == 'crf':
                 fields.append({'field': i[0], 'type': i[1], 'crf': True})
