@@ -4,21 +4,16 @@ import numpy as np
 from ast import literal_eval
 
 def trim(x):
-    x = x.split()
-    x = ' '.join(x)
-    return x   
-
+    return ' '.join(x.split())
 
 def clean_punctuation(df):
     for i in df.columns:
-        df[i] = df[i].astype(str) 
-    df = df.applymap(lambda x: x.lower())
-    for i in df.columns:
+        df[i] = df[i].astype(str)
         df[i] = df[i].str.replace('[^\w\s\.\-\(\)\,\:\/\\\\]','')
-    df = df.applymap(lambda x: trim(x))
-    df = df.applymap(lambda x: unidecode(x))
-    for i in df.columns:
-        df[i] = df[i].replace({'nan': None, 'none': None, 'nat': None})
+        df[i] = df[i].replace({'(?i)nan': None, '(?i)none': None, '(?i)nat': None}, regex=True)
+
+    df = df.applymap(lambda x: unidecode(trim(x.lower())))
+
     return df
 
 def select_fields(fields, field_properties):
@@ -34,21 +29,16 @@ def select_fields(fields, field_properties):
                 fields.append({'field': i[0], 'type': i[1], 'crf': True})
             else:
                 raise Exception(i[2] + " is not a valid field property")
-                
     
 def latlong_datatype(x):
-    if x is None:
-        return None
-    else:
+    if x:
         try:
-            x = literal_eval(x)
-            k,v = x
-            k = float(k)
-            v = float(v)
-            return k, v
+            k, v = literal_eval(x)
+            return float(k), float(v)
         except:
             raise Exception("Make sure that LatLong columns are tuples arranged like ('lat', 'lon')")
-            
+
+    return None
             
 def specify_type(df, field_properties):
     for i in field_properties:
