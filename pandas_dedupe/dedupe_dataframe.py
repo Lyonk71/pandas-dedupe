@@ -30,7 +30,7 @@ def _active_learning(data, sample_size, deduper, training_file, settings_file):
             from.
         settings_file : str
             A path to a settings file that will be loaded if it exists.
-            
+
         Returns
         -------
         dedupe.Dedupe
@@ -55,7 +55,7 @@ def _active_learning(data, sample_size, deduper, training_file, settings_file):
     # Save our weights and predicates to disk.
     with open(settings_file, 'wb') as sf:
         deduper.write_settings(sf)
-    
+
     return deduper
 
 def _train(settings_file, training_file, data, field_properties, sample_size, update_model, n_cores):
@@ -90,33 +90,33 @@ def _train(settings_file, training_file, data, field_properties, sample_size, up
     # Define the fields dedupe will pay attention to
     fields = []
     select_fields(fields, field_properties)
-    
+
     if update_model == False:
-        
+
         # If a settings file already exists, we'll just load that and skip training
         if os.path.exists(settings_file):
             print('Reading from', settings_file)
             with open(settings_file, 'rb') as f:
                 deduper = dedupe.StaticDedupe(f, num_cores=n_cores)
-        
+
         #Create a new deduper object and pass our data model to it.
         else:
             # Initialise dedupe
             deduper = dedupe.Dedupe(fields, num_cores=n_cores)
-            
+
             # Launch active learning
             deduper = _active_learning(data, sample_size, deduper, training_file, settings_file)
-            
+
     else:
         # ## Training
         # Initialise dedupe
         deduper = dedupe.Dedupe(fields, num_cores=n_cores)
-        
+
         # Import existing model
         print('Reading labeled examples from ', training_file)
         with open(training_file, 'rb') as f:
             deduper.prepare_training(data, training_file=f)
-        
+
         # Launch active learning
         deduper = _active_learning(data, sample_size, deduper, training_file, settings_file)
 
@@ -155,7 +155,7 @@ def _cluster(deduper, data, threshold, canonicalize):
                 pass
             else:
                 i[key] = str(i[key])
-    
+
     df_data = []
     # ## Writing Results
     cluster_id = 0
@@ -206,13 +206,13 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
             Option that provides the canonical records as additional columns.
             Specifying a list of column names only canonicalizes those columns.
         config_name : str, default dedupe_dataframe
-            The configuration file name. Note that this will be used as 
+            The configuration file name. Note that this will be used as
             a prefix to save the settings and training files.
         update_model : bool, default False
             If True, it allows user to update existing model by uploading
-            training file. 
+            training file.
         threshold : float, default 0.4
-           Only put together records into clusters if the cophenetic similarity of the cluster 
+           Only put together records into clusters if the cophenetic similarity of the cluster
            is greater than the threshold.
         sample_size : float, default 0.3
             Specify the sample size used for training as a float from 0 to 1.
@@ -220,7 +220,7 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
         n_cores : int, default None
             Specify the number of cores to use during clustering.
             By default n_cores is equal to None (i.e. use multipressing equal to CPU count).
-    
+
         Returns
         -------
         pd.DataFrame
@@ -228,29 +228,30 @@ def dedupe_dataframe(df, field_properties, canonicalize=False,
             score. Optionally, it will contain canonicalized columns for all
             attributes of the record.
     """
-    # Import Data  
+    # Import Data
     config_name = config_name.replace(" ", "_")
-   
+
     settings_file = config_name + '_learned_settings'
     training_file = config_name + '_training.json'
 
     print('Importing data ...')
 
-    df = clean_punctuation(df)
-    
-    specify_type(df, field_properties)                
-    
-    df['dictionary'] = df.apply(
-        lambda x: dict(zip(df.columns, x.tolist())), axis=1)
-    data_d = dict(zip(df.index, df.dictionary))
+    cols = [c if isinstance(c, str) else c[0] for c in field_properties]
+    data = df[cols]
+
+    data = clean_punctuation(data)
+
+    specify_type(data, field_properties)
+
+    d = data.apply(lambda x: dict(zip(data.columns, x.tolist())), axis=1)
+    data_d = dict(zip(data.index, d))
 
     # Train or load the model
     deduper = _train(settings_file, training_file, data_d, field_properties,
                      sample_size, update_model, n_cores)
 
     # Cluster the records
-    clustered_df = _cluster(deduper, data_d, threshold, canonicalize)
-    results = df.join(clustered_df, how='left')
-    results.drop(['dictionary'], axis=1, inplace=True)
+    clustered_data = _cluster(deduper, data_d, threshold, canonicalize)
+    results = df.join(clustered_data, how='left')
 
     return results
