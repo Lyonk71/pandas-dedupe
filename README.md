@@ -166,6 +166,10 @@ Additional supported parameters are:
 
 [Daniel Marczin](https://github.com/dim5) - Extensive updates to documentation to enhance readability.
 
+[Alexis-Evelyn](https://github.com/alexis-evelyn) - Fixed logger warning with related to Pandas.
+
+[Niels Horn](https://github.com/nilq) - Cleaned up utility functions.
+
 # Credits
 
 Many thanks to folks at [DataMade](https://datamade.us/) for making the the [Dedupe library](https://github.com/dedupeio/dedupe) publicly available. People interested in a code-free implementation of the dedupe library can find a link here: [Dedupe.io](https://dedupe.io/pricing/).
