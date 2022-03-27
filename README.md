@@ -82,12 +82,12 @@ If `True`, it allows a user to update the existing model.
 pandas_dedupe.dedupe_dataframe(df, ['first_name', 'last_name'], update_model=True)
 ```
 
-### Recall Weight & Sample Size
+### Threshold & Sample Size
 
-The `dedupe_dataframe()` function has two optional parameters specifying `recall_weight` and `sample_size`:
+The `dedupe_dataframe()` function has two optional parameters specifying `threshold` and `sample_size`:
 
-- **recall_weight** - Ranges from 0 to 2. When set to 2, we are saying we care twice as much
-  about recall than we do about precision.
+- **threshold** - Ranges from 0 to 1. It specifies the minimum cophenetic similarity required to put together records into a cluster.
+  By default it is 0.4.
 - **sample_size** - Specifies the sample size used for training as a float from 0 to 1.
   By default it is 30% (0.3) of our data.
 
